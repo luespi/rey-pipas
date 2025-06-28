@@ -1,0 +1,146 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es" class="h-full scroll-smooth" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Rey Pipas{% endblock %}</title>
+  <link rel="icon" href="{% static 'images/favicon.svg' %}" type="image/svg+xml">
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=17">
+</head>
+<body class="min-h-full flex flex-col font-sans text-gray-800">
+  <!-- Header ------------------------------------------------------------------>
+  <header class="sticky top-0 z-50 bg-white/70 backdrop-blur border-b">
+    <nav class="max-w-7xl mx-auto flex items-center justify-between h-16 px-4">
+      <!-- logo -->
+      <a href="/" class="text-xl font-extrabold text-brand">Rey&nbsp;Pipas</a>
+
+      <!-- burger button -->
+      <!-- burger button (solo móvil) -->
+      <button id="burger-btn" class="lg:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg ring-1 ring-brand/30 text-brand transition hover:bg-brand/10 focus:outline-none">
+        <span class="sr-only">Abrir menú</span>
+        <svg id="burger-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+
+      <!-- desktop menu -->
+      <!-- desktop menu -->
+      <ul class="hidden lg:flex items-center gap-6 text-sm font-semibold">
+        <li><a href="/dashboard/" class="text-gray-900 hover:text-brand transition">Dashboard</a></li>
+        {% if request.user.is_authenticated and request.user.user_type == 'client' %}
+          <li><a href="{% url 'orders:create_order' %}" class="text-gray-900 hover:text-brand transition">Nuevo&nbsp;pedido</a></li>
+          <li><a href="{% url 'orders:my_orders' %}" class="text-gray-900 hover:text-brand transition">Historial</a></li>
+        {% endif %}
+        {% if request.user.is_authenticated %}
+          <li><a href="{% url 'users:profile' %}" class="text-gray-900 hover:text-brand transition">Mi&nbsp;perfil</a></li>
+        {% endif %}
+        <li>
+          <a href="{% url 'users:logout' %}" class="text-gray-900 hover:text-brand ring-1 ring-brand px-4 py-2 rounded transition">
+            Salir
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- mobile dropdown -->
+    <!-- mobile dropdown -->
+    <ul id="mobile-menu" class="lg:hidden absolute top-16 left-0 right-0 bg-white/95 backdrop-blur-xl shadow-lg divide-y divide-gray-200 text-base font-semibold py-4 hidden overflow-y-auto max-h-[calc(100vh-4rem)]">
+      <li><a href="/dashboard/" class="block px-6 py-3 text-gray-900 hover:text-brand">Dashboard</a></li>
+      {% if request.user.is_authenticated and request.user.user_type == 'client' %}
+        <li><a href="{% url 'orders:create_order' %}" class="block px-6 py-3 text-gray-900 hover:text-brand">Nuevo&nbsp;pedido</a></li>
+        <li><a href="{% url 'orders:my_orders' %}" class="block px-6 py-3 text-gray-900 hover:text-brand">Historial</a></li>
+      {% endif %}
+      {% if request.user.is_authenticated %}
+        <li><a href="{% url 'users:profile' %}" class="block px-6 py-3 text-gray-900 hover:text-brand">Mi&nbsp;perfil</a></li>
+      {% endif %}
+      <li><a href="{% url 'users:logout' %}" class="block px-6 py-3 text-gray-900 hover:text-brand">Salir</a></li>
+    </ul>
+  </header>
+
+  <!-- skip link -->
+  <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 bg-brand text-white rounded px-3 py-2">Saltar al contenido</a>
+
+  <!-- page content -->
+  <main id="main" class="flex-1">{% block content %}
+<div class="max-w-3xl mx-auto py-12 px-6">
+  <!-- Header ---------------------------------------------------------- -->
+  <div class="bg-white border border-brand/20 shadow-xl rounded-3xl px-10 py-14 flex flex-col items-center gap-8">
+
+    {# Avatar + nombre #}
+    <div class="flex flex-col items-center gap-3">
+      {% if user.profile_image %}
+        <img src="{{ user.profile_image.url }}" alt="Avatar"
+             class="w-36 h-36 rounded-full ring-4 ring-brand object-cover" />
+      {% else %}
+        <div class="w-36 h-36 rounded-full bg-gray-200 flex items-center justify-center text-4xl font-bold text-brand ring-4 ring-brand">
+          {{ user.first_name|slice:":1" }}{{ user.last_name|slice:":1" }}
+        </div>
+      {% endif %}
+      <h1 class="text-3xl font-extrabold text-gray-900">{{ user.get_full_name }}</h1>
+      <p class="text-sm text-gray-500">{{ user.email }}</p>
+      <a href="{% url 'users:profile_edit' %}" class="btn btn-brand flex items-center gap-2 px-5 py-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232a2.5 2.5 0 113.536 3.536L7.5 20.036 3 21l.964-4.5 11.268-11.268z" /></svg>
+        Editar perfil
+      </a>
+    </div>
+
+    {# Métricas -------------------------------------------------------- #}
+    <div class="mt-8 flex flex-wrap justify-center gap-6">
+      <div class="min-w-[140px] px-6 py-4 rounded-2xl bg-gray-100 text-center">
+        <p class="text-3xl font-extrabold text-gray-900">{{ orders_count }}</p>
+        <p class="text-sm text-gray-600">Pedidos</p>
+      </div>
+      <div class="min-w-[140px] px-6 py-4 rounded-2xl bg-gray-100 text-center">
+        <p class="text-3xl font-extrabold text-gray-900">{{ total_liters }}</p>
+        <p class="text-sm text-gray-600">Litros</p>
+      </div>
+    </div>
+
+    {# Datos adicionales ---------------------------------------------- #}
+    <div class="w-full mt-10 grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-10 text-[15px]">
+      <div class="font-medium text-gray-500">Teléfono</div>
+      <div class="text-gray-800">{{ user.phone|default:"—" }}</div>
+
+      <div class="font-medium text-gray-500">Dirección</div>
+      <div class="text-gray-800">{{ user.address|default:"—" }}</div>
+
+      <div class="font-medium text-gray-500">Fecha de nacimiento</div>
+      <div class="text-gray-800">{{ user.date_of_birth|date:"d M Y"|default:"—" }}</div>
+
+      {% if profile and user.is_client %}
+        <div class="font-medium text-gray-500">Empresa</div>
+        <div class="text-gray-800">{{ profile.company_name|default:"—" }}</div>
+
+        <div class="font-medium text-gray-500">RFC/CURP</div>
+        <div class="text-gray-800">{{ profile.tax_id|default:"—" }}</div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}</main>
+
+  <!-- footer (sin cambios) -->
+  {% block footer %}{% endblock %}
+
+  <!-- Script burger -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const btn   = document.getElementById('burger-btn');
+      const menu  = document.getElementById('mobile-menu');
+      const icon  = document.getElementById('burger-icon');
+
+      btn.addEventListener('click', () => {
+        menu.classList.toggle('hidden');
+        icon.classList.toggle('rotate-45');
+      });
+
+      // cerrar al hacer clic en enlace
+      menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+          menu.classList.add('hidden');
+        }));
+    });
+  </script>
+</body>
+</html>

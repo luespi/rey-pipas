@@ -1,0 +1,16 @@
+npx tailwindcss -i ./static/src/input.css -o ./static/css/styles.css --watch
+
+
+
+
+
+Exacto — con esa sola línea basta:
+
+npx tailwindcss -i ./static/src/input.css -o ./static/css/styles.css --watch
+
+
+Guárdala en un bloc de notas, tu README o un alias corto.
+
+Cada vez que inicies la máquina: abre terminal en la raíz del proyecto, pega el comando, presiona Enter y déjalo corriendo mientras trabajas o haces la demo.
+
+Cualquier cambio en tus templates o en input.css se recompilará al instante; si cierras la terminal o apagas la compu, solo vuelve a lanzar la línea y listo.

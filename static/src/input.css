@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---- Diseño personalizado ---- */
+@layer components {
+  .btn {
+    /* utilidades que SÍ acepta @apply */
+    @apply inline-flex items-center justify-center transition;
+
+    /* propiedades escritas “a mano” */
+    font-weight: 600;        /* equivale a font-semibold         */
+    gap: 0.5rem;             /* equivale a space-x-2 / gap-2      */
+    border-radius: 0.5rem;   /* equivale a rounded-lg             */
+  }
+
+  .btn-brand {
+    @apply bg-brand text-white hover:bg-brandDark;
+  }
+
+  .btn-outline {
+    @apply border border-brand text-brand hover:bg-brand hover:text-white;
+  }
+
+  .card {
+    /* utilidades permitidas */
+    @apply bg-white transition-shadow;
+
+    /* propiedades directas */
+    border-radius: 0.5rem;           /* rounded-lg  */
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);     /* shadow-sm */
+  }
+}

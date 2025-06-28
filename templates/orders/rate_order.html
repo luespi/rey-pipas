@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% block title %}Calificar pedido #{{ order.order_number }} · Rey Pipas{% endblock %}
+
+{% block content %}
+<!-- separadores arriba y abajo -->
+<div class="h-24 sm:h-32"></div>
+
+<section class="max-w-lg mx-auto px-6 sm:px-8">
+  <div class="bg-white border border-brand rounded-3xl shadow-xl hover:shadow-2xl transition-shadow duration-200 px-8 sm:px-12 py-14 space-y-14">
+    <h1 class="text-3xl font-extrabold text-brand text-center tracking-tight">Califica tu experiencia</h1>
+    <p class="text-lg font-medium text-gray-700 text-center -mt-3">(calificación&nbsp;general)</p>
+
+    <form method="post" class="space-y-12">
+      {% csrf_token %}
+
+      <!-- Estrellas -->
+      <div class="text-center">
+        <style>
+          .star-input{display:none;}
+          .star-label{font-size:3rem;margin:0 .4rem;color:#cbd5e1;cursor:pointer;transition:color .15s;}
+          .star-label:hover,
+          .star-label:hover~.star-label{color:#fdc968;}
+          .star-input:checked~.star-label{color:#FDBA21;}
+        </style>
+        <div id="star-wrapper" class="inline-flex">
+          {% for value in "54321" %}
+            <input type="radio" name="rating" id="s{{ value }}" value="{{ value }}" class="star-input" {% if form.rating.value|stringformat:'s' == value %}checked{% endif %}>
+            <label for="s{{ value }}" class="star-label">★</label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Comentario -->
+      <div class="space-y-3">
+        <label for="{{ form.review.id_for_label }}" class="block text-lg font-semibold text-center">Comentario (opcional)</label>
+        {{ form.review|add_class:"w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-4 focus:ring-brand focus:border-brand text-base" }}
+      </div>
+
+      <!-- Botones -->
+      <div class="flex flex-col sm:flex-row gap-6 pt-2">
+        <a href="{% url 'orders:my_orders' %}" class="flex-1 text-center border border-gray-300 rounded-xl py-3 font-semibold hover:bg-gray-100 hover:text-brand transition-colors">Cancelar</a>
+        <button type="submit" class="flex-1 bg-brand text-white rounded-xl py-3 font-semibold hover:bg-brand-dark transition-colors">Enviar</button>
+        </br></br>
+      </div>
+    </form>
+  </div>
+</section>
+
+<div class="h-24 sm:h-32"></br></br></div>
+
+<script>
+(function(){
+  const wrap=document.getElementById('star-wrapper');
+  if(!wrap) return;
+  const paint=v=>wrap.querySelectorAll('.star-label').forEach((l,i)=>{l.style.color=(5-i)<=v?'#FDBA21':'#cbd5e1';});
+  wrap.addEventListener('click',e=>{if(e.target.tagName!=='LABEL')return;paint(parseInt(e.target.htmlFor.slice(1)));});
+  const chk=wrap.querySelector('.star-input:checked');if(chk) paint(parseInt(chk.id.slice(1)));
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,186 @@
+/* ------------- Paleta ------------- */
+:root{
+  --brand:        #86373d;          /* coral principal */
+  --brand-dark:   #3d3d3d;
+  --brand-light:  #F9E7E9;
+  --gray-900:     #1f2937;
+  --gray-700:     #374151;
+  --gray-100:     #f3f4f6;
+}
+
+/* --------- Header top bar --------- */
+#header, .module h2 {
+  background-color: var(--brand);
+  color: #fff;
+}
+
+/* --------- Link & hover ----------- */
+a, .breadcrumbs a {
+  color: var(--brand);  text-decoration:none;
+}
+a:hover { filter: brightness(0.9); }
+
+/* --------- Botones ---------------- */
+.button, input[type=submit], .submit-row input {
+  background:   var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+}
+.button:hover, .submit-row input:hover {
+  background: var(--brand-dark);
+}
+
+/* --------- Filtros laterales ------ */
+#changelist-filter h2 {
+  background: var(--brand-dark);
+  color:#fff;
+}
+#changelist-filter li.selected a { font-weight:600; color:var(--brand); }
+
+/* --------- Tablas & zebra --------- */
+tr.row1, tr.row2 {
+  background-color: var(--brand-light);
+}
+/* ============  PALETA  ============ */
+:root{
+  --brand:        #a93d44;   /* coral principal */
+  --brand-dark:   #3d3d3d;
+  --brand-light:  #FCE9EB;
+  --gray-100:     #f5f5f5;
+  --gray-800:     #374151;
+  --success:      #22c55e;   /* verde tailwind-ish */
+}
+
+/* ----------  Módulos (barras azules) ------------- */
+.module h2,
+#nav-sidebar .app-label {
+  background: var(--brand-dark) !important;
+  color:#fff !important;
+  border-color: var(--brand-dark) !important;
+}
+
+/* ----------  Sidebar seleccionado  --------------- */
+#nav-sidebar .current-app .app-label {
+  filter: brightness(1.05);
+}
+#nav-sidebar li.current-model  a{
+  background: var(--brand-light) !important;
+  color: var(--brand-dark) !important;
+}
+
+/* ----------  Indicador fila seleccionada ---------- */
+tr.selected, .row-selected {
+  background: var(--brand-light) !important;
+}
+
+/* ----------  Mensajes de Django ------------------ */
+.success, div.messages .success {
+  background: var(--success);
+}
+.warning, div.messages .warning {
+  background: var(--brand);
+}
+
+/* ----------  Links & paginación ------------------ */
+a:link, a:visited {
+  color: var(--brand-dark);
+}
+a:hover { color: var(--brand); }
+
+/* ----------  Botón cerrar / acción --------------- */
+.button, input[type=submit], .submit-row input {
+  background:   var(--brand);
+  border-color: var(--brand);
+}
+.button:hover, .submit-row input:hover {
+  background: var(--brand-dark);
+}
+
+/* ----------  Breadcrumb bar ---------------------- */
+#nav-breadcrumbs, .breadcrumbs {
+  background: var(--brand-light);
+  border-bottom: 1px solid var(--brand);
+}
+
+
+/* ========== 1) Texto gris normal en tablas (links) ========== */
+.change-list table td a,
+.results table td a          { color: var(--gray-800) !important; }
+.change-list table td a:hover{ color: var(--brand-dark) !important; }
+
+/* ========== 2) Barra breadcrumb + barra usuario ============= */
+#nav-breadcrumbs,             /* camino Inicio › Orders… */
+#user-tools {                 /* BENVIENIDO, … Cambiar contraseña */
+  background: var(--brand-dark) !important;
+  color:#fff;
+  border-bottom: 1px solid var(--brand);
+}
+#nav-breadcrumbs a,
+#user-tools a {
+  color:#fff !important;
+}
+#nav-breadcrumbs a:hover,
+#user-tools a:hover {
+  text-decoration: underline;
+}
+
+/* ========== 3) Elimina amarillo del sidebar seleccionado ===== */
+#nav-sidebar li.model a:focus,
+#nav-sidebar li.model a:active,
+#nav-sidebar li.current-model a {
+  background: var(--brand-light) !important;
+  color: var(--brand-dark) !important;
+  border-left: 4px solid var(--brand) !important;
+}
+
+/* Ajuste: la flecha «« para colapsar sidebar */
+#nav-sidebar-toggle {
+  background: var(--brand-dark) !important;
+  color:#fff !important;
+}
+
+
+
+/* --------------- Reseteo global de la paleta Django admin --------------- */
+html[data-theme="light"], :root {
+  /* primarios originales (#79aec8 / #417690) */
+  --primary:          #a83e47;    /* enlaces, iconos, etc. */
+  --secondary:        #b1353f;    /* barras de módulo, sidebar heading */
+  /* acento amarillo (#f5dd5d) -> coral */
+  --accent:           #bb3540;
+
+  /* grises para texto y fondos */
+  --body-fg:          #374151;    /* texto normal */
+  --body-bg:          #ffffff;
+  --body-quiet-color: #6B7280;    /* texto secundario (gris medio) */
+  --body-loud-color:  #111827;    /* headings */
+
+  /* header / breadcrumb / sidebar */
+  --header-color:     #ffffff;
+  --header-branding-color: #ffffff;
+  --header-bg:        #D04450;    /* franja breadcrumb + user bar */
+  --breadcrumbs-fg:   #374151;
+  --breadcrumbs-link-fg: #39181b;
+  --breadcrumbs-bg:   #FCE9EB;
+
+  /* links */
+  --link-fg:          #E5525F;
+  --link-hover-color: #D04450;
+
+  /* mensajes flash */
+  --message-success-bg: #22c55e;  /* verde éxito */
+  --message-warning-bg: #fbbf24;  /* opcional: mantén amarillo o cambia */
+  --message-error-bg:   #ef4444;  /* error rojo */
+}
+
+/* Quita resaltado amarillo de item seleccionado en sidebar */
+#nav-sidebar li.current-model a,
+#nav-sidebar li.current-model { background: var(--breadcrumbs-bg) !important; color: var(--link-fg); }
+
+/* Módulos (barras azules) → secondary */
+.module h2,
+#nav-sidebar .app-label { background: var(--secondary) !important; color:#fff; }
+
+/* Breadcrumb / user-tools a color nuevo */
+#nav-breadcrumbs, #user-tools { background: var(--header-bg) !important; }
+

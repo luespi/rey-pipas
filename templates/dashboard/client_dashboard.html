@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+{% block title %}Panel de Cliente · Rey Pipas{% endblock %}
+
+{% block content %}
+<style>
+/* ────────── Estilos locales: tarjetas limpias + números centrados ───────── */
+.card{
+  background:#ffffffee;           /* blanco 0.93 con ligera transparencia  */
+  backdrop-filter:blur(6px);
+  border-left:6px solid  /* brand coral */rgb(229 82 95 / var(--tw-text-opacity));
+  border-radius:1rem;             /* rounded-2xl */
+  box-shadow:0 12px 18px -6px rgba(0,0,0,.12);
+  padding:2rem 1.5rem;
+  min-height:8rem;                /* asegura aire vertical */
+  display:flex;
+  flex-direction:column;
+  justify-content:center;         /* centra vertical */
+  gap:.25rem;
+  transition:transform .18s,box-shadow .18s;
+}
+.card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 16px 24px -6px rgba(0,0,0,.14);
+}
+.card h2{
+  font:700 1.125rem/1.2 system-ui;   /* 18 px */
+                    
+  margin:0;
+  text-align:center;
+}
+.card p{
+  font:600 2rem/1 system-ui;         /* 32 px */
+  color:#374151;                     /* gray-700 */
+  margin:0;
+  text-align:center;                 /* centra horizontal */
+}
+/* Responsivo: 1-2-3 columnas según ancho */
+.dashboard-grid{
+  display:grid;
+  gap:1.5rem;
+}
+@media(min-width:640px){            /* sm */
+  .dashboard-grid{grid-template-columns:repeat(2,1fr);}
+}
+@media(min-width:1024px){           /* lg */
+  .dashboard-grid{grid-template-columns:repeat(3,1fr);}
+
+
+
+  /* ─── Hover tabla: fondo brand + texto blanco ─── */
+  tbody tr:hover > td{
+    background-color: rgb(229 82 95 / var(--tw-text-opacity));
+    color:#fff;               /* texto blanco */
+  }
+  
+
+  
+}
+</style>
+
+<section class="mx-auto max-w-7xl px-4 py-12">
+
+  <!-- Encabezado -->
+  <header class="mb-12 text-center sm:text-left">
+    <h1 class="text-3xl sm:text-4xl font-extrabold text-brand mb-3 tracking-tight">
+      Panel de Cliente
+    </h1>
+    <p class="text-gray-600 text-base max-w-2xl">
+      Consulta el estado de tus pedidos y solicita nuevas entregas fácilmente.
+    </p>
+  </header>
+
+  <!-- Tarjetas con datos reales o demo -->
+  {% if cards %}
+    <div class="dashboard-grid">
+      {% for card in cards %}
+        <div class="card">
+          <h2 class="text-brand">{{ card.title }}</h2>
+          <p>{{ card.content }}</p>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-center text-gray-500 mb-10">
+      Aún no tienes pedidos registrados. (contenido de muestra abajo)
+    </p>
+
+    <div class="dashboard-grid opacity-80">
+      <div class="card">
+        <h2 class="text-brand">Pedidos totales</h2>
+        <p>3</p>
+      </div>
+      <div class="card">
+        <h2 class="text-brand">Pendientes de entrega</h2>
+        <p>1</p>
+      </div>
+      <div class="card">
+        <h2 class="text-brand">Pedidos completados</h2>
+        <p>2</p>
+      </div>
+    </div>
+  {% endif %}
+</section>
+
+
+
+
+
+    <!-- 🔻 TABLA COMPLETA CON OPCIÓN 1: ROSADO SUAVE + BORDE IZQUIERDO 🔻 -->
+    {% if last_orders %}
+      <div class="mx-auto max-w-7xl px-4 pb-16">
+        <!-- ↓ TARJETA CORTITA COMO LAS DE ARRIBA (ALINEADA A LA IZQUIERDA) ↓ -->
+        <div class="mb-8">
+          <div class="card" style="min-height: 4rem; padding: 1.5rem; max-width: 320px;">
+            <h2 class="text-brand">Mis pedidos recientes</h2>
+          </div>
+        </div>
+
+        <!-- ↓ TABLA CON BORDE DELGADITO ROJIZO ALREDEDOR ↓ -->
+        <div class="overflow-x-auto bg-white shadow-md rounded-lg mb-12" style="border: 1px solid #E5525F;">
+          <table class="w-full">
+            <thead>
+              <tr style="background-color: #E5525F;">
+                <th class="px-4 py-3 text-left text-xs lg:text-base font-semibold text-white uppercase">#</th>
+                <th class="px-4 py-3 text-left text-xs lg:text-base font-semibold text-white uppercase">Fecha entrega</th>
+                <th class="px-4 py-3 text-left text-xs lg:text-base font-semibold text-white uppercase">Litros</th>
+                <th class="px-4 py-3 text-left text-xs lg:text-base font-semibold text-white uppercase">Estatus</th>
+              </tr>
+            </thead>
+
+            <tbody class="bg-white divide-y divide-gray-200">
+              {% for o in last_orders %}
+                <!-- Fila actúa sólo como “group” gatillo -->
+                <tr class="group">
+                  <td class="px-4 py-3 text-xs lg:text-sm text-gray-900
+                             group-hover:bg-brand group-hover:text-white font-mono">
+                    {{ o.order_number }}
+                  </td>
+                  <td class="px-4 py-3 text-xs lg:text-sm text-gray-900
+                             group-hover:bg-brand group-hover:text-white">
+                    {{ o.delivery_date }}
+                  </td>
+                  <td class="px-4 py-3 text-xs lg:text-sm text-gray-900
+                             group-hover:bg-brand group-hover:text-white">
+                    {{ o.quantity_liters }} L
+                  </td>
+                  <td class="px-4 py-3 text-xs lg:text-sm text-gray-900
+                             group-hover:bg-brand group-hover:text-white">
+                    <span class="inline-block rounded-full px-2 py-1 text-xs lg:text-sm font-semibold
+                      {% if o.status == 'pending' %} bg-yellow-100 text-yellow-700
+                      {% elif o.status == 'delivered' %} bg-green-100 text-green-700
+                      {% elif o.status == 'in_transit' %} bg-blue-100 text-blue-700
+                      {% else %} bg-gray-100 text-gray-700 {% endif %}
+                      group-hover:bg-brand/30 group-hover:text-white">
+                      {{ o.get_status_display }}
+                    </span>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+
+          </table>
+        </div>
+
+
+<!-- ↓ BOTÓN CON SEPARACIÓN FORZADA ↓ -->
+<div class="mt-12 text-center" style="margin-bottom: 120px !important;">
+  <a href="{% url 'orders:my_orders' %}" 
+     class="inline-block bg-white text-brand hover:bg-brand hover:text-white font-semibold text-sm lg:text-base px-6 py-3 rounded-lg shadow-sm transition-colors duration-200"
+     style="border: 1px solid #E5525F;">
+     Ver todos mis pedidos →
+  </a>
+</div>
+</div>
+
+{% else %}
+  <!-- Mensaje también más legible en desktop -->
+  <p class="text-center text-gray-500 pb-12 text-sm lg:text-base">
+    Aún no tienes pedidos.
+  </p>
+{% endif %}
+
+
+
+
+
+
+{% endblock %}
