@@ -1,3 +1,79 @@
+
+los tres “ constantes ” están al principio de "users/forms.py", de modo que —si no quieres tocar más código— basta con ajustar sus valores y reiniciar el servidor para que los nuevos límites entren en vigor.
+
+python
+Copiar
+Editar
+MAX_SIZE_MB   = 5      # peso máximo en MB
+MIN_DIMENSION = 512    # lado corto mínimo en px
+MAX_DIMENSION = 2048   # lado largo máximo en px
+Peso máximo – pon el número de MB que quieras permitir (ej. 10 para 10 MB).
+
+Lado corto mínimo – si ya no quieres bloquear fotos pequeñas, simplemente pon 0 o elimina la comprobación en clean_profile_image().
+
+Lado largo máximo – sube o baja el valor en píxeles
+
+
+
+
+
+
+Guía‑rápida · Operadores – Reusar UI y lógica de Clientes
+
+Formularios / Widgets
+
+Copia UserProfileForm → OperatorProfileForm y reutiliza los mismos widgets:
+
+address con <textarea> y clases textarea textarea-bordered ….
+
+Campos <input> con utilidades Tailwind (border‑gray‑300, rounded‑lg, shadow‑inner, focus‑ring-red‑500).
+
+Usa el mismo clean_profile_image() (peso, dimensiones) y ResizedImageField en el modelo User.
+
+Avatar overlay
+
+Mismo bloque HTML + overlay “Agregar / Modificar (JPG y PNG)”.
+
+Input file oculto (sr-only) + preview JS (#avatar-preview, #save-hint).
+
+Botones
+
+Cancelar → gris (bg‑gray‑200).
+
+Guardar cambios → azul marca (bg‑brand).
+
+Registro Operador
+
+Revisa que la URL /auth/register/operator/ apunte a OperatorRegistrationForm.
+
+Asegura que la view use form_valid() → login() tras form.save().
+
+Tailwind
+
+Mantén las clases literales para que JIT nunca las purgue.
+
+Si añades nuevas utilidades, agrega a safelist[] en tailwind.config.js.
+
+Validadores
+
+Teléfono → PHONE_REGEX.
+
+Imagen → MAX_SIZE_MB=5, MIN_DIMENSION=512, MAX_DIMENSION=2048.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 npx tailwindcss -i ./static/src/input.css -o ./static/css/styles.css --watch
 
 
@@ -8,9 +84,88 @@ Exacto — con esa sola línea basta:
 
 npx tailwindcss -i ./static/src/input.css -o ./static/css/styles.css --watch
 
+npx tailwindcss -i static/src/input.css -o static/css/styles.css --watch
+
 
 Guárdala en un bloc de notas, tu README o un alias corto.
 
 Cada vez que inicies la máquina: abre terminal en la raíz del proyecto, pega el comando, presiona Enter y déjalo corriendo mientras trabajas o haces la demo.
 
 Cualquier cambio en tus templates o en input.css se recompilará al instante; si cierras la terminal o apagas la compu, solo vuelve a lanzar la línea y listo.
+
+
+
+
+from django.apps import AppConfig
+
+class MessagesConfig(AppConfig):
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "apps.messages"        # ruta en el proyecto
+    label = "pipa_messages"       # ← NUEVO, evita colisión
+    verbose_name = "Mensajes internos"
+
+
+
+[2025-06-30]  • Se creó apps/users/validators.py SOLO para exponer phone_regex.
+• Es duplicado del validador definido en apps/users/models.py.
+• Pendiente: unificar validadores en módulo único (core/validators.py)
+  y actualizar los imports (forms.py, models.py) en próxima refactorización.
+
+
+
+[2025-07-01]  • App “messages” renombrada internamente a label = "pipa_messages".
+  • Motivo: evitar colisión con la app nativa django.contrib.messages
+    (su label también es “messages”).  Sin este cambio, Django lanza
+    “Application labels aren't unique, duplicates: messages”.
+  • El módulo físico sigue en apps/messages/, pero cualquier comando
+    de migración debe referirse a pipa_messages.
+  • Pendiente: si en el futuro se unifica con una app de notificaciones,
+    revisar este label antes de publicar a producción.
+
+
+
+[2025-07-01]  • Creación de superusuario para modelo User personalizado
+  • NO usar el comando interactivo “python manage.py createsuperuser”
+    porque pide `username`, campo que ya no es obligatorio/único.
+  • Procedimiento recomendado desde el shell de Django:
+
+      >>> from apps.users.models import User
+      >>> User.objects.create_superuser(
+      ...     email="admin@example.com",
+      ...     password="TuContraseñaFuerte"
+      ... )
+      <User: admin@example.com (Administrador)>
+
+  • Al omitir `username`, el UserManager genera un alias único basado
+    en la parte antes de la arroba.
+  • Recordar: `user_type` se establece automáticamente en "admin"
+    dentro de `create_superuser`.
+
+
+
+
+
+
+[2025-07-02]  • Evitamos IntegrityError duplicado:
+OperatorRegistrationForm ya crea OperatorProfile
+con todos los campos.  La señal post_save ahora
+SOLO crea ClientProfile para user_type="client".
+
+
+
+[2025-07-02]  • Registro de operador solo incluye datos básicos.
+• Fotos de la pipa y documentos oficiales se subirán
+  en la vista “Mis documentos” / “Mis vehículos”.
+• Próximo sprint: añadir campos de archivo a
+  OperatorProfile (INE, licencia PDF, comprobante) y
+  Vehicle (front_photo, side_photo).
+
+
+
+Nota para notas.txt: “activado namespace messages para chat”.
+
+01-Jul-2025 – Línea messages/ incluida en django_project/urls.py; namespace activo.
+
+[02-Jul-2025] Namespace orders_operator registrado directo en django_project/urls.py para evitar NoReverseMatch en templates operador.
+
+

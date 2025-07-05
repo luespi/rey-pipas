@@ -1,6 +1,8 @@
 """
 Vistas de autenticación y perfil – Rey Pipas
 """
+# añade el import arriba
+from .forms import OperatorRegistrationForm
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -210,7 +212,7 @@ def check_email_availability(request):
 class ClientRegisterView(CreateView):
     model = User
     form_class = ClientRegistrationForm
-    template_name = "auth/client_register.html"
+    template_name = "auth/register.html"
     success_url = reverse_lazy("dashboard")
 
     def form_valid(self, form):
@@ -224,10 +226,10 @@ class OperatorRegisterView(CreateView):
     model = User
     form_class = OperatorRegistrationForm
     template_name = "auth/operator_register.html"
-    success_url = reverse_lazy("dashboard")
+    success_url = reverse_lazy("dashboard")   # ← destino final lógico
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        login(self.request, self.object)
+        login(self.request, self.object)      # lo logueas una sola vez
         messages.success(self.request, "¡Cuenta de operador creada exitosamente!")
         return response

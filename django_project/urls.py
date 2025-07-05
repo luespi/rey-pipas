@@ -112,12 +112,21 @@ urlpatterns = [
 
     # Apps de dominio
     path("orders/",   include("apps.orders.urls")),
+    # 👉 nuevo include explícito con namespace
+    path(
+        "orders/operator/",
+        include(("apps.orders.urls_operator", "orders_operator"), namespace="orders_operator"),
+    ),
+
+    
     path("vehicles/", include("apps.vehicles.urls")),
     path("payments/", include("apps.payments.urls")),
 
     # API (futuras integraciones)
     path("api/v1/", include("apps.core.api_urls")),
     # path("api-auth/", include("rest_framework.urls")),  # Descomenta si usas DRF
+     path("messages/", include(("apps.messages.urls", "messages"), namespace="messages")),
+     
 ]
 
 # ---------------------------------------------------------------------------

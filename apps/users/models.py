@@ -24,26 +24,49 @@ phone_regex = RegexValidator(
 # CUSTOM USER MANAGER
 # ---------------------------------------------------------------------------
 class UserManager(BaseUserManager):
-    """Gestor que respeta los roles y asegura email único"""
+    """Gestor que respeta los roles y asegura email único (email = USERNAME_FIELD)"""
 
     use_in_migrations = True
 
-    def _create_user(self, username, email, password, **extra_fields):
+    # ------------ helper interno -------------------------------------------------
+    def _generate_unique_username(self, email: str) -> str:
+        """
+        Devuelve un alias único basado en la parte antes de la arroba.
+        Si ya existe, añade un sufijo numérico: pepito, pepito2, pepito3…
+        """
+        base = email.split("@")[0][:150] or "user"
+        username = base
+        counter = 1
+        while self.model.objects.filter(username=username).exists():
+            counter += 1
+            # recortamos si fuera necesario para no superar 150 caracteres
+            slice_len = 150 - len(str(counter))
+            username = f"{base[:slice_len]}{counter}"
+        return username
+
+    # ------------ fábrica principal ---------------------------------------------
+    def _create_user(self, email, password, username=None, **extra_fields):
         if not email:
             raise ValueError("El campo Email es obligatorio")
         email = self.normalize_email(email)
+
+        # Si no llega alias, lo generamos
+        if not username:
+            username = self._generate_unique_username(email)
+
         user = self.model(username=username, email=email, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_user(self, username, email=None, password=None, **extra_fields):
+    # ------------ públicos -------------------------------------------------------
+    def create_user(self, email, password=None, username=None, **extra_fields):
         extra_fields.setdefault("is_staff", False)
         extra_fields.setdefault("is_superuser", False)
         extra_fields.setdefault("user_type", User.UserType.CLIENT)
-        return self._create_user(username, email, password, **extra_fields)
+        return self._create_user(email=email, password=password, username=username, **extra_fields)
 
-    def create_superuser(self, username, email=None, password=None, **extra_fields):
+    def create_superuser(self, email, password=None, username=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("user_type", User.UserType.ADMIN)
@@ -53,8 +76,7 @@ class UserManager(BaseUserManager):
         if extra_fields.get("is_superuser") is not True:
             raise ValueError("Superuser must have is_superuser=True.")
 
-        return self._create_user(username, email, password, **extra_fields)
-
+        return self._create_user(email=email, password=password, username=username, **extra_fields)
 
 # ---------------------------------------------------------------------------
 # USER
@@ -62,17 +84,32 @@ class UserManager(BaseUserManager):
 class User(AbstractUser):
     """Extiende el usuario base de Django con roles y datos de contacto"""
 
+    # ——— Identificación principal (email) ———
+    USERNAME_FIELD = "email"        # ahora se inicia sesión con email
+    REQUIRED_FIELDS: list[str] = [] # create_superuser ya no pedirá username
+
     # Alias para compatibilidad con formularios antiguos
-    phone_regex = phone_regex  # <- ¡IMPORTANTE! Mantiene User.phone_regex vigente
+    phone_regex = phone_regex       # mantiene User.phone_regex vigente
 
     class UserType(models.TextChoices):
-        CLIENT = "client", "Cliente"
+        CLIENT   = "client",   "Cliente"
         OPERATOR = "operator", "Operador"
-        ADMIN = "admin", "Administrador"
+        ADMIN    = "admin",    "Administrador"
 
     # -------------------- Contacto --------------------
     email = models.EmailField("Email", unique=True)
-    phone = models.CharField("Teléfono", validators=[phone_regex], max_length=17, blank=True)
+
+    # Username se vuelve opcional y **no** único
+    username = models.CharField(
+        "Alias (opcional)",
+        max_length=150,
+        blank=True,
+        null=True,
+        unique=False,
+        help_text="Alias visible en el sistema; si lo dejas vacío, se generará automáticamente.",
+    )
+
+    phone  = models.CharField("Teléfono", validators=[phone_regex], max_length=17, blank=True)
 
     # -------------------- Rol --------------------
     user_type = models.CharField(
@@ -86,42 +123,36 @@ class User(AbstractUser):
     # -------------------- Datos opcionales --------------------
     address = models.TextField("Dirección", blank=True)
     date_of_birth = models.DateField("Fecha de Nacimiento", null=True, blank=True)
-    # ⬇️ SUSTITUIDO
-    # profile_image = models.ImageField("Foto de Perfil", upload_to="profiles/", null=True, blank=True)
     profile_image = ResizedImageField(
         "Foto de Perfil",
-        size=[512, 512],         # máx. 512 × 512 px
-        quality=80,              # compresión JPEG
-        force_format="JPEG",     # convierte PNG/WebP → JPEG
-        upload_to="profiles/",
-        null=True,
-        blank=True,
+        size=[512, 512], quality=80, force_format="JPEG",
+        upload_to="profiles/", null=True, blank=True,
     )
 
-    # …
-
     # -------------------- Metadatos --------------------
-    created_at = models.DateTimeField("Fecha de Creación", auto_now_add=True)
-    updated_at = models.DateTimeField("Última Actualización", auto_now=True)
+    created_at  = models.DateTimeField("Fecha de Creación", auto_now_add=True)
+    updated_at  = models.DateTimeField("Última Actualización", auto_now=True)
     is_verified = models.BooleanField("Verificado", default=False)
 
     # Gestor por defecto
     objects = UserManager()
 
     class Meta:
-        verbose_name = "Usuario"
+        verbose_name  = "Usuario"
         verbose_name_plural = "Usuarios"
         ordering = ["-created_at"]
         indexes = [models.Index(fields=["user_type", "is_active"])]
-        constraints = [models.UniqueConstraint(fields=["email"], name="unique_email")]
+        constraints = [
+            models.UniqueConstraint(fields=["email"], name="unique_email")
+        ]
 
     # -------------------- Utilidades --------------------
     def __str__(self):
-        return f"{self.get_full_name() or self.username} ({self.get_user_type_display()})"
+        return f"{self.get_full_name() or self.email} ({self.get_user_type_display()})"
 
     def get_full_name(self) -> str:  # type: ignore[override]
         name = super().get_full_name().strip()
-        return name or self.username
+        return name or self.email.split("@")[0]
 
     @property
     def is_client(self) -> bool:
@@ -134,7 +165,6 @@ class User(AbstractUser):
     @property
     def is_admin_user(self) -> bool:
         return self.user_type == self.UserType.ADMIN
-
 
 # ---------------------------------------------------------------------------
 # CLIENT PROFILE

@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     "apps.vehicles",
     "apps.payments",
     "apps.core",
+    "apps.messages",        # ← con el prefijo apps.
 
 
      "widget_tweaks",

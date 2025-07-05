@@ -99,11 +99,72 @@
       </button>
     </form>
 
-    <p style="margin-top:2rem;font-size:.875rem;text-align:center;color:#4B5563">
+
+</br></br>
+
+    <!-- ───── Divisor elegante ───── -->
+    <div style="display:flex;align-items:center;margin-top:2.5rem;margin-bottom:2rem">
+      <hr style="flex:1;border:0;border-top:1px solid #E5E7EB">  <!-- gray-200 -->
+      <span style="margin:0 .75rem;font:500 .75rem system-ui;color:#9CA3AF">
+        
+        
+        
+        <i class="fa fa-circle-o-notch fa-spin" ></i>
+      
+      
+      
+      </span>
+      <hr style="flex:1;border:0;border-top:1px solid #E5E7EB">
+    </div>
+
+
+
+  </br></br>
+
+    
+
+    {# ───── Sección “No tienes cuenta” ───── #}
+    <p style="margin-top:2rem;font-size:.875rem;text-align:center;color:#E5525F">
       ¿No tienes cuenta?
-      <a href="{% url 'users:register' %}"
-         style="color:#FF6B6B;font-weight:500">Regístrate</a>
     </p>
+    <h1><span style="color: #E5525F !important;">Regístrate.</span></h1>
+
+
+    <div style="margin-top:1rem;display:flex;flex-direction:column;gap:.75rem">
+
+      {# Botón 1 · Cliente – contorno #}
+        <a href="{% url 'users:register' %}"  
+         style="
+           display:inline-block;text-align:center;
+           padding:.75rem 1rem;font:600 .875rem system-ui;
+           border:2px solid #E5525F;border-radius:.75rem;
+           color:#E5525F;background:#fff;
+           transition:transform .15s,box-shadow .15s;
+         "
+         onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 12px -4px rgba(0,0,0,.1)'"
+         onmouseout ="this.style.transform='none';this.style.boxShadow='none'"
+         onfocus   ="this.style.boxShadow='0 0 0 4px rgba(255,107,107,.4)'"
+         onblur    ="this.style.boxShadow='none'">
+        Regístrate como Cliente
+      </a>
+
+      {# Botón 2 · Operador – relleno #}
+      <a href="{% url 'users:register_operator' %}"
+         style="
+           display:inline-block;text-align:center;
+           padding:.75rem 1rem;font:600 .875rem system-ui;
+           border:2px solid #E5525F;border-radius:.75rem;
+           color:#fff;background:#E5525F;
+           transition:transform .15s,box-shadow .15s;
+         "
+         onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 12px -4px rgba(0,0,0,.1)'"
+         onmouseout ="this.style.transform='none';this.style.boxShadow='none'"
+         onfocus   ="this.style.boxShadow='0 0 0 4px rgba(255,107,107,.4)'"
+         onblur    ="this.style.boxShadow='none'">
+        Regístrate como Operador
+      </a>
+
+    </div>
 
   </div>
 </div>

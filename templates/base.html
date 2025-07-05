@@ -2,6 +2,14 @@
 <!DOCTYPE html>
 <html lang="es" class="h-full scroll-smooth" data-theme="light">
 <head>
+
+  <!-- Font Awesome 4.7 ─ CDN -->
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+
+
+  
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Rey Pipas{% endblock %}</title>
@@ -25,37 +33,50 @@
       </button>
 
       <!-- desktop menu -->
-      <!-- desktop menu -->
-      <ul class="hidden lg:flex items-center gap-6 text-sm font-semibold">
-        <li><a href="/dashboard/" class="text-gray-900 hover:text-brand transition">Dashboard</a></li>
-        {% if request.user.is_authenticated and request.user.user_type == 'client' %}
-          <li><a href="{% url 'orders:create_order' %}" class="text-gray-900 hover:text-brand transition">Nuevo&nbsp;pedido</a></li>
-          <li><a href="{% url 'orders:my_orders' %}" class="text-gray-900 hover:text-brand transition">Historial</a></li>
-        {% endif %}
-        {% if request.user.is_authenticated %}
-          <li><a href="{% url 'users:profile' %}" class="text-gray-900 hover:text-brand transition">Mi&nbsp;perfil</a></li>
-        {% endif %}
-        <li>
-          <a href="{% url 'users:logout' %}" class="text-gray-900 hover:text-brand ring-1 ring-brand px-4 py-2 rounded transition">
-            Salir
-          </a>
-        </li>
-      </ul>
-    </nav>
+  <!-- desktop menu -->
+  <ul class="hidden lg:flex items-center gap-6 text-sm font-semibold">
+    <li><a href="/dashboard/" class="text-gray-900 hover:text-brand transition">Dashboard</a></li>
+    {# ---------------- CLIENTE ---------------- #}
+    {% if request.user.is_authenticated and request.user.user_type == 'client' %}
+      <li><a href="{% url 'orders:create_order' %}" class="text-gray-900 hover:text-brand transition">Nuevo&nbsp;pedido</a></li>
+      <li><a href="{% url 'orders:my_orders' %}" class="text-gray-900 hover:text-brand transition">Historial</a></li>
+    {% endif %}
+    {# ---------------- OPERADOR ---------------- #}
+    {% if request.user.is_authenticated and request.user.user_type == 'operator' %}
+      <li><a href="{% url 'orders:orders_operator:pending' %}" class="text-gray-900 hover:text-brand transition">Pedidos&nbsp;pendientes</a></li>
+      <li><a href="{% url 'orders:orders_operator:assigned' %}" class="text-gray-900 hover:text-brand transition">Mis&nbsp;entregas</a></li>
+    {% endif %}
+    {# ---------------- PERFIL & SALIR ---------------- #}
+    {% if request.user.is_authenticated %}
+      <li><a href="{% url 'users:profile' %}" class="text-gray-900 hover:text-brand transition">Mi&nbsp;perfil</a></li>
+    {% endif %}
+    <li>
+      <a href="{% url 'users:logout' %}" class="text-gray-900 hover:text-brand ring-1 ring-brand px-4 py-2 rounded transition">
+        Salir
+      </a>
+    </li>
+  </ul>
+  </nav>
 
-    <!-- mobile dropdown -->
-    <!-- mobile dropdown -->
-    <ul id="mobile-menu" class="lg:hidden absolute top-16 left-0 right-0 bg-white/95 backdrop-blur-xl shadow-lg divide-y divide-gray-200 text-base font-semibold py-4 hidden overflow-y-auto max-h-[calc(100vh-4rem)]">
-      <li><a href="/dashboard/" class="block px-6 py-3 text-gray-900 hover:text-brand">Dashboard</a></li>
-      {% if request.user.is_authenticated and request.user.user_type == 'client' %}
-        <li><a href="{% url 'orders:create_order' %}" class="block px-6 py-3 text-gray-900 hover:text-brand">Nuevo&nbsp;pedido</a></li>
-        <li><a href="{% url 'orders:my_orders' %}" class="block px-6 py-3 text-gray-900 hover:text-brand">Historial</a></li>
-      {% endif %}
-      {% if request.user.is_authenticated %}
-        <li><a href="{% url 'users:profile' %}" class="block px-6 py-3 text-gray-900 hover:text-brand">Mi&nbsp;perfil</a></li>
-      {% endif %}
-      <li><a href="{% url 'users:logout' %}" class="block px-6 py-3 text-gray-900 hover:text-brand">Salir</a></li>
-    </ul>
+  <!-- mobile dropdown -->
+  <ul id="mobile-menu" class="lg:hidden absolute top-16 left-0 right-0 bg-white/95 backdrop-blur-xl shadow-lg divide-y divide-gray-200 text-base font-semibold py-4 hidden overflow-y-auto max-h-[calc(100vh-4rem)]">
+    <li><a href="/dashboard/" class="block px-6 py-3 text-gray-900 hover:text-brand">Dashboard</a></li>
+    {# ---------------- CLIENTE ---------------- #}
+    {% if request.user.is_authenticated and request.user.user_type == 'client' %}
+      <li><a href="{% url 'orders:create_order' %}" class="block px-6 py-3 text-gray-900 hover:text-brand">Nuevo&nbsp;pedido</a></li>
+      <li><a href="{% url 'orders:my_orders' %}" class="block px-6 py-3 text-gray-900 hover:text-brand">Historial</a></li>
+    {% endif %}
+    {# ---------------- OPERADOR ---------------- #}
+    {% if request.user.is_authenticated and request.user.user_type == 'operator' %}
+      <li><a href="{% url 'orders:orders_operator:pending' %}" class="block px-6 py-3 text-gray-900 hover:text-brand">Pedidos&nbsp;pendientes</a></li>
+      <li><a href="{% url 'orders:orders_operator:assigned' %}" class="block px-6 py-3 text-gray-900 hover:text-brand">Mis&nbsp;entregas</a></li>
+    {% endif %}
+    {# ---------------- PERFIL & SALIR ---------------- #}
+    {% if request.user.is_authenticated %}
+      <li><a href="{% url 'users:profile' %}" class="block px-6 py-3 text-gray-900 hover:text-brand">Mi&nbsp;perfil</a></li>
+    {% endif %}
+    <li><a href="{% url 'users:logout' %}" class="block px-6 py-3 text-gray-900 hover:text-brand">Salir</a></li>
+  </ul>
   </header>
 
   <!-- skip link -->
