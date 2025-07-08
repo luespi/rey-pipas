@@ -24,10 +24,16 @@
         <td class="px-4 py-2">{{ order.client.get_full_name }}</td>
         <td class="px-4 py-2 text-right">{{ order.quantity_liters }}</td>
         <td class="px-4 py-2">{{ order.get_status_display }}</td>
+
+        {# ───────────── Columna CHAT ───────────── #}
         <td class="px-4 py-2">
-          <span class="text-gray-400">Chat no disponible</span>
+          <a href="{% url 'messages:order_chat' order.pk %}"
+             class="text-blue-600 hover:underline">
+             Abrir chat
+          </a>
         </td>
-        <!-- Columna de acciones -->
+
+        {# ───────────── Columna ACCIONES ───────────── #}
         <td class="px-4 py-2 text-center">
           {% if order.get_status_display == "Asignado" %}
             <!-- Botón RECHAZAR -->
@@ -36,11 +42,11 @@
                   class="inline">
               {% csrf_token %}
               <button type="submit"
-        style="background:#dc2626;color:#fff;padding:4px 8px;border-radius:4px;font-size:0.75rem;font-weight:600;"
-        onmouseover="this.style.background='#990c02'"
-        onmouseout="this.style.background='#dc2626'">
-  Rechazar
-</button>
+                      style="background:#dc2626;color:#fff;padding:4px 8px;border-radius:4px;font-size:0.75rem;font-weight:600;"
+                      onmouseover="this.style.background='#990c02'"
+                      onmouseout="this.style.background='#dc2626'">
+                Rechazar
+              </button>
             </form>
 
             <!-- Botón MARCAR ENTREGADO -->
@@ -50,11 +56,10 @@
               {% csrf_token %}
               <button type="submit"
                       style="background:#16a34a;color:#fff;padding:4px 8px;border-radius:4px;font-size:0.75rem;font-weight:600;"
-                      onmouseover="this.style.background='#4ade80'; this.style.color='#000000';"
+                      onmouseover="this.style.background='#4ade80'; this.style.color='#000';"
                       onmouseout="this.style.background='#16a34a'; this.style.color='#fff';">
                 Marcar&nbsp;entregado
               </button>
-
             </form>
           {% endif %}
         </td>
@@ -68,6 +73,5 @@
     {% endfor %}
     </tbody>
   </table>
-
 </div>
 {% endblock %}

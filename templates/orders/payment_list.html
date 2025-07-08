@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="text-2xl font-semibold mb-4">Mis pagos</h2>
+
+<table class="min-w-full border divide-y divide-gray-200">
+  <thead class="bg-gray-50">
+    <tr>
+      <th class="px-4 py-2 text-left">Pedido</th>
+      <th class="px-4 py-2 text-left">Monto</th>
+      <th class="px-4 py-2 text-left">Método</th>
+      <th class="px-4 py-2 text-left">Fecha</th>
+    </tr>
+  </thead>
+  <tbody class="bg-white divide-y divide-gray-200">
+    {% for pay in object_list %}
+      <tr>
+        <td class="px-4 py-2">{{ pay.order.order_number }}</td>
+        <td class="px-4 py-2">${{ pay.amount }}</td>
+        <td class="px-4 py-2">{{ pay.get_method_display }}</td>
+        <td class="px-4 py-2">{{ pay.paid_at|date:"d/m/Y H:i" }}</td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="4" class="px-4 py-4 text-center text-gray-500">
+          Sin pagos aún.
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

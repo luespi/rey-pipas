@@ -169,3 +169,60 @@ Nota para notas.txt: “activado namespace messages para chat”.
 [02-Jul-2025] Namespace orders_operator registrado directo en django_project/urls.py para evitar NoReverseMatch en templates operador.
 
 
+
+
+
+
+
+
+
+
+
+Notas – Automatización de tests (Quincena 3)
+
+ContextoSe integró pytest + pytest‑django para que, al pulsar Run en Replit, se ejecute primero el test Operator Flow y sólo si pasa se levante el servidor.
+
+Cómo arrancar sin ejecutar los tests
+
+SKIP_TESTS=1 python manage.py runserver 0.0.0.0:3000
+
+Esto inicia Django directamente. La variable de entorno SKIP_TESTS evita que el bloque de .replit corra pytest.
+
+Detener el servidor: simplemente presiona Ctrl + C en la misma consola donde está corriendo.
+
+Archivos clave
+
+.replit → contiene el bloque que corre pytest antes de runserver.
+
+pytest.ini → configura Django para los tests.
+
+tests/test_operator_flow.py → prueba automática del flujo Operador.
+
+Última actualización: 05‑Jul‑2025
+
+
+
+
+
+
+[Q3] Favicon pendiente
+— Se eliminó la línea del favicon (<link rel="icon" ...>) en templates/base.html
+  para evitar el error “Missing staticfiles manifest entry” que WhiteNoise lanza
+  durante los tests y en desarrollo.
+— Volver a colocarla en Quincena 5, después de ejecutar `collectstatic`
+  y generar el manifest (deploy).
+
+
+
+
+
+2025‑07‑07 ▸ Solución final chat Q3:
+- Se añadió script HTMX 1.9.10 en base.html.
+- Formularios hx-post ahora envían vía Ajax (POST 204) y la lista se refresca.
+- Verificado: mensajes fluyen en ambos roles sin duplicados.
+
+2025‑07‑07 ▸ Q3 
+- Añadido script HTMX 1.9.10 en base.html.
+- OrderChatView entrega chat_page.html (carga inicial) o _list.html (HTMX).
+- _form.html sin hx-include → body llega correctamente.
+- Verificado flujo operador⇄cliente sin duplicados (POST 204 / refresh 5 s).

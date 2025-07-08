@@ -151,3 +151,11 @@ MESSAGE_TAGS = {
 
 # --- Default prim. key type -------------------------------------------------
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+
+# ------------------------------------------------------------------
+#   Desactivar WhiteNoise Manifest en DEBUG y durante los tests
+# ------------------------------------------------------------------
+if DEBUG or os.environ.get("PYTEST_CURRENT_TEST"):
+    STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"

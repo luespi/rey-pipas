@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Chat del pedido #{{ order.folio }}{% endblock %}
+
+{% block content %}
+<h1 class="text-xl font-semibold mb-4">
+  Chat – pedido #{{ order.folio }}
+</h1>
+
+<!-- Historial -->
+<div id="chat-box" class="space-y-2 mb-4 text-sm">
+  {% include "messages/_list.html" %}
+</div>
+
+<!-- Formulario para responder -->
+<form id="chat-form"
+      action="{% url 'messages:create' order.pk %}"
+      method="post"
+      class="flex space-x-2">
+  {% csrf_token %}
+  <textarea name="body"
+            rows="1"
+            required
+            placeholder="Escribe un mensaje…"
+            class="flex-1 border rounded-lg px-3 py-2 focus:ring-brand"></textarea>
+  <button class="bg-brand text-white px-4 rounded-lg">Enviar</button>
+</form>
+
+<script>
+// --- refresco automático cada 5 s ---------------------------------
+async function refreshChat () {
+  const resp = await fetch("{% url 'messages:order_chat' order.pk %}");
+  document.getElementById("chat-box").innerHTML = await resp.text();
+}
+setInterval(refreshChat, 5000);
+
+// --- envío por fetch para no recargar la página -------------------
+document.getElementById("chat-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  const data = new FormData(form);
+  await fetch(form.action, {method: "POST", body: data});
+  form.reset();
+  refreshChat();                 // muestra el mensaje al instante
+});
+</script>
+{% endblock %}

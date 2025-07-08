@@ -10,6 +10,7 @@ from django.conf.urls.static import static
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
+from django.db.models import Avg
 
 # ---------------------------------------------------------------------------
 # Vistas de nivel proyecto
@@ -19,7 +20,7 @@ def home_view(request):
     if request.user.is_authenticated:
         return redirect("dashboard")
     return render(request, "landing/index.html")
-
+from django.db.models import Avg            # ⬅️  nuevo import
 
 @login_required
 def dashboard_view(request):
@@ -45,30 +46,40 @@ def dashboard_view(request):
             pending_orders = pending_orders,
             total_clients  = total_clients,
             active_vehicles= active_vehicles,
-            # Tarjetas para la plantilla
             cards=[
-                {"title": "Órdenes totales",     "content": total_orders},
-                {"title": "Pendientes",          "content": pending_orders},
-                {"title": "Clientes",            "content": total_clients},
-                {"title": "Vehículos activos",   "content": active_vehicles},
+                {"title": "Órdenes totales",   "content": total_orders},
+                {"title": "Pendientes",        "content": pending_orders},
+                {"title": "Clientes",          "content": total_clients},
+                {"title": "Vehículos activos", "content": active_vehicles},
             ],
         )
         template = "dashboard/admin_dashboard.html"
 
     # --- Panel OPERADOR ---------------------------------------------------
     elif user_type == "operator":
-        assigned_orders = Order.objects.filter(operator=user).count()
-        today_deliveries= Order.objects.filter(
-            operator=user,
-            delivery_date=timezone.localdate()
-        ).count()
+        assigned_orders  = Order.objects.filter(operator=user).count()
+        today_deliveries = (
+            Order.objects.filter(
+                operator=user,
+                delivery_date=timezone.localdate()
+            ).count()
+        )
+
+        # 👇  NUEVO: promedio de calificaciones
+        avg = (
+            Order.objects.filter(operator=user, rating__isnull=False)
+            .aggregate(prom=Avg("rating__rating"))
+        )["prom"] or 0
+        avg_rating = round(avg, 2)           # 4.33 → 4.33
 
         context.update(
             assigned_orders = assigned_orders,
             today_deliveries= today_deliveries,
+            avg_rating      = avg_rating,     # 👈  disponible en la plantilla
             cards=[
                 {"title": "Órdenes asignadas", "content": assigned_orders},
                 {"title": "Entregas hoy",      "content": today_deliveries},
+                {"title": "Promedio ⭐",        "content": avg_rating},
             ],
         )
         template = "dashboard/operator_dashboard.html"
@@ -76,27 +87,25 @@ def dashboard_view(request):
     # --- Panel CLIENTE ----------------------------------------------------
     else:
         my_orders_count = Order.objects.filter(client=user).count()
-        pending_orders = Order.objects.filter(client=user, status="pending").count()
-        # Obtén los últimos 5 pedidos recientes
-        last_orders = Order.objects.filter(client=user).order_by('-created_at')[:3]
+        pending_orders  = Order.objects.filter(client=user, status="pending").count()
+        last_orders     = (
+            Order.objects.filter(client=user)
+            .order_by("-created_at")[:3]
+        )
 
         context.update(
             my_orders      = my_orders_count,
             pending_orders = pending_orders,
-            last_orders    = last_orders,  # <<--- Esta línea es nueva
+            last_orders    = last_orders,
             cards=[
-                {"title": "Mis pedidos",       "content": my_orders_count},
-                {"title": "Pendientes",        "content": pending_orders},
+                {"title": "Mis pedidos", "content": my_orders_count},
+                {"title": "Pendientes",  "content": pending_orders},
             ],
         )
         template = "dashboard/client_dashboard.html"
 
-        
-    
-
     return render(request, template, context)
 
-# ---------------------------------------------------------------------------
 # URL patterns
 # ---------------------------------------------------------------------------
 urlpatterns = [
@@ -120,12 +129,16 @@ urlpatterns = [
 
     
     path("vehicles/", include("apps.vehicles.urls")),
-    path("payments/", include("apps.payments.urls")),
+    path(
+        "payments/",
+        include(("apps.orders.urls_payments", "payments"), namespace="payments"),
+    ),
+
 
     # API (futuras integraciones)
     path("api/v1/", include("apps.core.api_urls")),
     # path("api-auth/", include("rest_framework.urls")),  # Descomenta si usas DRF
-     path("messages/", include(("apps.messages.urls", "messages"), namespace="messages")),
+    path("messages/", include(("apps.messages.urls", "messages"), namespace="messages")),
      
 ]
 

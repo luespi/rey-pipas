@@ -10,6 +10,14 @@ from django.db import models
 from django.utils import timezone
 
 
+
+from django.conf import settings
+from django.core.validators import MinValueValidator, MaxValueValidator
+from django.db import models
+from django.utils import timezone
+import uuid
+
+
 class Order(models.Model):
     # ---------------- Choices ----------------
     class Status(models.TextChoices):
@@ -25,6 +33,68 @@ class Order(models.Model):
         NORMAL = "normal", "Normal"
         HIGH = "high", "Alta"
         URGENT = "urgent", "Urgente"
+
+    # ---------------- Zonas ----------------
+    ZONES = [
+        ("",  "Selecciona tu zona"),  # placeholder no válido
+        # ── Alcaldías (CDMX) ─────────────────────
+        ("AO", "Álvaro Obregón"),
+        ("AZ", "Azcapotzalco"),
+        ("BJ", "Benito Juárez"),
+        ("CO", "Coyoacán"),
+        ("CU", "Cuauhtémoc"),
+        ("CJ", "Cuajimalpa de Morelos"),
+        ("GA", "Gustavo A. Madero"),
+        ("IZ", "Iztacalco"),
+        ("IH", "Iztapalapa"),
+        ("MC", "Magdalena Contreras"),
+        ("MI", "Miguel Hidalgo"),
+        ("MA", "Milpa Alta"),
+        ("TL", "Tláhuac"),
+        ("TM", "Tlalpan"),
+        ("VC", "Venustiano Carranza"),
+        ("XO", "Xochimilco"),
+        # ── Municipios conurbados (Edoméx) ───────
+        ("ACO", "Acolman"),
+        ("AME", "Amecameca"),
+        ("APA", "Apaxco"),
+        ("ATC", "Atenco"),
+        ("ATL", "Atizapán de Zaragoza"),
+        ("CAP", "Capulhuac"),
+        ("CHI", "Chicoloapan"),
+        ("CHT", "Chimalhuacán"),
+        ("CJC", "Coacalco de Berriozábal"),
+        ("CME", "Cuautitlán México"),
+        ("CIZ", "Cuautitlán Izcalli"),
+        ("ECT", "Ecatepec de Morelos"),
+        ("HIX", "Huehuetoca"),
+        ("HZN", "Hueypoxtla"),
+        ("IZC", "Ixtapaluca"),
+        ("JAL", "Jaltenco"),
+        ("LNE", "La Paz"),
+        ("LCO", "Lerma"),
+        ("MEL", "Melchor Ocampo"),
+        ("NZA", "Nezahualcóyotl"),
+        ("NIC", "Nicolás Romero"),
+        ("NUP", "Nopaltepec"),
+        ("OTU", "Otumba"),
+        ("PAP", "Papalotla"),
+        ("SLM", "San Martín de las Pirámides"),
+        ("SFE", "San Felipe del Progreso"),
+        ("SFS", "San Francisco Soyaniquilpan"),
+        ("SOX", "Santo Tomás"),
+        ("TEC", "Tecámac"),
+        ("TEM", "Temamatla"),
+        ("TEN", "Tenango del Aire"),
+        ("TEO", "Teoloyucan"),
+        ("TEX", "Texcoco"),
+        ("TLA", "Tlalnepantla de Baz"),
+        ("TLN", "Tepotzotlán"),
+        ("TNT", "Teotihuacán"),
+        ("TUL", "Tultitlán"),
+        ("VCS", "Valle de Chalco Solidaridad"),
+        ("ZMP", "Zumpango"),
+    ]
 
     # -------------- Identificación --------------
     order_number = models.CharField(max_length=20, unique=True)
@@ -56,6 +126,16 @@ class Order(models.Model):
         validators=[MinValueValidator(500), MaxValueValidator(20_000)]
     )
     delivery_address = models.TextField()
+
+    # NUEVOS CAMPOS DE ZONA
+    zone = models.CharField(
+        "Zona (alcaldía o municipio)",
+        max_length=4,
+        choices=ZONES,
+        blank=False,
+    )
+    colonia = models.CharField("Colonia (opcional)", max_length=120, blank=True)
+
     delivery_date = models.DateField()
     delivery_time_preference = models.CharField(max_length=50, blank=True)
 
@@ -81,6 +161,7 @@ class Order(models.Model):
             models.Index(fields=["status", "created_at"]),
             models.Index(fields=["client", "status"]),
             models.Index(fields=["operator", "status"]),
+            models.Index(fields=["zone", "status"]),  # útil para filtros
         ]
 
     # ----------- Métodos utilitarios -----------
@@ -110,7 +191,7 @@ class Order(models.Model):
     @property
     def estimated_cost(self):
         if self.quantity_liters is None:
-            return None      # o 0
+            return None  # o 0
         # usa tu lógica real de precio
         return self.quantity_liters * self.price_per_liter
 
@@ -119,6 +200,8 @@ class Order(models.Model):
         if self.status in {self.Status.DELIVERED, self.Status.CANCELLED}:
             return False
         return timezone.now().date() > self.delivery_date
+
+
 
 
 class OrderStatusHistory(models.Model):

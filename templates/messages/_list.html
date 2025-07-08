@@ -1,0 +1,10 @@
+{# templates/messages/_list.html #}
+{% for msg in messages %}
+  <p>
+    <strong>{{ msg.sender.first_name }}:</strong>
+    {{ msg.text }}
+    <span class="text-xs text-gray-500">{{ msg.created_at|time:"H:i" }}</span>
+  </p>
+{% empty %}
+  <p class="text-gray-400">Aún no hay mensajes.</p>
+{% endfor %}

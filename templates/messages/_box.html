@@ -1,0 +1,8 @@
+{# templates/messages/_box.html #}
+<div id="chat-box"
+     hx-get="{% url 'messages:order_chat' order.pk %}"
+     hx-trigger="load, every 5s"
+     hx-target="this"
+     hx-swap="innerHTML">
+  {% include "messages/_list.html" %}
+</div>

@@ -1,3 +1,5 @@
+
+
 from django import forms
 from .models import Order
 
@@ -57,4 +59,28 @@ class OrderRatingForm(forms.ModelForm):
                     "focus:ring-brand focus:border-brand"
                 ),
             }),
+        }
+
+
+
+# apps/orders/forms.py  (añade al final)
+
+from apps.payments.models import Payment    # ⬅️ ajusta el import si tu modelo Payment está en otra app
+
+class PaymentForm(forms.ModelForm):
+    """Formulario mínimo para registrar pagos en efectivo o tarjeta."""
+    class Meta:
+        model  = Payment
+        fields = ['amount', 'method']
+        labels = {
+            'amount': 'Monto recibido',
+            'method': 'Método',
+        }
+        widgets = {
+            'amount': forms.NumberInput(attrs={
+                "class": BASE,
+                "step": "0.01",
+                "min": "0",
+            }),
+            'method': forms.Select(attrs={"class": BASE}),
         }

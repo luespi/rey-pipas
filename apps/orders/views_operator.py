@@ -33,9 +33,12 @@ class OperatorAssignedListView(LoginRequiredMixin, OperatorRequiredMixin, ListVi
     context_object_name = "orders"
 
     def get_queryset(self):
-        return Order.objects.filter(
-            status="assigned", operator=self.request.user
-        ).order_by("created_at")
+            return (
+                Order.objects
+                .filter(status="assigned", operator=self.request.user)
+                .select_related("thread", "client")
+                .order_by("created_at")
+            )
 
 
 class OperatorAcceptOrderView(LoginRequiredMixin, OperatorRequiredMixin, View):

@@ -1,8 +1,13 @@
+{# templates/orders/order_detail.html #}
 {% extends "base.html" %}
 {% block title %}Pedido #{{ order.order_number }} · Detalle{% endblock %}
 
 {% block content %}
-<!-- separación generosa menú/footer -->
+<h3 class="text-xl font-semibold mt-6 mb-2">Chat</h3>
+
+{% include "messages/_box.html" with order=order %}
+{% include "messages/_form.html" with order=order %}
+<!-- separación menú/footer -->
 <div class="h-24 sm:h-32"></div>
 
 <section class="max-w-3xl mx-auto px-6 sm:px-10">
@@ -34,19 +39,23 @@
 
     <!-- Calificación -->
     {% if order.rating %}
-    <hr>
-    <section class="space-y-5">
-      <h2 class="text-xl font-bold text-brand">Tu calificación</h2>
-      <p class="text-3xl text-brand tracking-wider">
-        {% for _ in "12345" %}
-          {% if forloop.counter <= order.rating.rating %}★{% else %}☆{% endif %}
-        {% endfor %}
-        <span class="text-base text-gray-600 ml-2 align-middle">({{ order.rating.rating }}/5)</span>
-      </p>
-      {% if order.rating.review %}
-        <p class="border-l-4 border-brand pl-5 italic text-gray-700">{{ order.rating.review }}</p>
-      {% endif %}
-    </section>
+      <hr>
+      <section class="space-y-5">
+        <h2 class="text-xl font-bold text-brand">Tu calificación</h2>
+        <p class="text-3xl text-brand tracking-wider">
+          {% for _ in "12345" %}
+            {% if forloop.counter <= order.rating.rating %}★{% else %}☆{% endif %}
+          {% endfor %}
+          <span class="text-base text-gray-600 ml-2 align-middle">
+            ({{ order.rating.rating }}/5)
+          </span>
+        </p>
+        {% if order.rating.review %}
+          <p class="border-l-4 border-brand pl-5 italic text-gray-700">
+            {{ order.rating.review }}
+          </p>
+        {% endif %}
+      </section>
     {% endif %}
 
     <!-- Botón volver -->

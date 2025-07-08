@@ -1,0 +1,20 @@
+{# templates/messages/_form.html #}
+{% if user == order.client or user == order.operator %}
+<form id="msg-form-{{ order.pk }}"
+      hx-post="{% url 'messages:create' order.pk %}"
+      hx-swap="none"
+      hx-on:afterRequest="this.reset()">
+  {% csrf_token %}
+  <div class="flex gap-2 mt-3">
+    <input id="msg-input-{{ order.pk }}"
+           name="body"
+           required
+           class="flex-1 border rounded px-2 py-1"
+           placeholder="Escribe un mensaje…"/>
+    <button type="submit"
+            class="bg-brand text-white px-4 rounded">
+      Enviar
+    </button>
+  </div>
+</form>
+{% endif %}

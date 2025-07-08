@@ -118,3 +118,13 @@ class OrderRatingAdmin(admin.ModelAdmin):
     list_filter   = ("rating", "created_at")
     search_fields = ("order__order_number",)
     readonly_fields = ("created_at",)
+
+
+
+
+
+# apps/orders/admin.py
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ("order_number", "client", "zone", "status", "created_at")
+    list_filter  = ("zone", "status")

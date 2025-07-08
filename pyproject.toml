@@ -12,6 +12,7 @@ python-decouple = "^3.8"
 whitenoise = "^6.9.0"
 django-widget-tweaks = "^1.5.0"
 django-resized = "^1.0.3"
+sendgrid-django = "^4.2.0"
 [tool.poetry.dev-dependencies]
 
 [tool.pyright]
