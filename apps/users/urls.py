@@ -3,7 +3,12 @@
 from django.urls import path
 from django.views.generic import RedirectView
 from . import views
-
+from .views import (
+    login_view, logout_view, ClientRegisterView, OperatorRegisterView,
+    profile_view, profile_edit_view, password_reset_request,
+    check_email_availability, dashboard_redirect,
+    OperatorProfileCompleteView,    # ← AÑADE ESTO
+)
 app_name = "users"
 
 urlpatterns = [

@@ -24,3 +24,16 @@ class PaymentCreateView(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse("orders:orders_operator:history")
+
+
+from django.views.generic import ListView
+from .models import Payment
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+class PaymentListView(LoginRequiredMixin, ListView):
+    model = Payment
+    template_name = "payments/payment_list.html"
+    context_object_name = "payments"
+
+    def get_queryset(self):
+        return Payment.objects.filter(order__client=self.request.user)

@@ -254,3 +254,36 @@ class OperatorRegisterView(CreateView):
         login(self.request, self.object)      # lo logueas una sola vez
         messages.success(self.request, "¡Cuenta de operador creada exitosamente!")
         return response
+
+
+# apps/users/views.py  (al final del archivo o junto a otras CBVs)
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import CreateView
+from django.urls import reverse
+from django.contrib import messages
+
+from .models import OperatorProfile
+from .forms import OperatorExtraForm  # usa tu formulario de registro de operador
+
+class OperatorProfileCompleteView(LoginRequiredMixin, CreateView):
+    model = OperatorProfile
+    form_class = OperatorExtraForm      # o OperatorProfileForm si lo tienes
+    template_name = "users/operator_profile_complete.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_operator:
+            messages.error(request, "Solo los operadores pueden acceder aquí.")
+            return redirect("users:profile")
+        # Si ya tiene perfil, no dejar duplicar
+        if OperatorProfile.objects.filter(user=request.user).exists():
+            messages.info(request, "Tu perfil ya está completo.")
+            return redirect("users:profile")
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        messages.success(self.request, "¡Perfil completado!")
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse("users:profile")

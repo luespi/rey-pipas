@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">Mis pagos</h1>
+<ul>
+  {% for p in payments %}
+    <li>{{ p.order.order_number }} – ${{ p.amount }}</li>
+  {% empty %}
+    <li>No tienes pagos registrados.</li>
+  {% endfor %}
+</ul>
+{% endblock %}
