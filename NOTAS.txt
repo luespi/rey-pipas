@@ -226,3 +226,62 @@ tests/test_operator_flow.py → prueba automática del flujo Operador.
 - OrderChatView entrega chat_page.html (carga inicial) o _list.html (HTMX).
 - _form.html sin hx-include → body llega correctamente.
 - Verificado flujo operador⇄cliente sin duplicados (POST 204 / refresh 5 s).
+
+
+
+admin.py: se eliminó import redundante de inlines; las clases OrderStatusHistoryInline y OrderRatingInline ya viven en el mismo archivo.
+
+
+
+urls_operator.py actualizado: se añadió ruta /today/ y se importó OperatorTodayListView.
+
+Templates operator/orders_pending.html y operator/orders_today.html actualizados para filtros zona/colonia y rutas correctas.
+
+
+
+• Ejecutar:
+    python manage.py makemigrations vehicles
+    python manage.py migrate
+  para registrar ajustes Meta de Vehicle.
+• Pendiente técnico: agregar order_by('-created_at') en PaymentList para evitar warning.
+• Warnings STATICFILES y staticfiles/ se abordarán en fase de deploy (no afectan la demo).
+
+• vehicles.0002 applied – estructura de Vehicle sincronizada.
+• Entorno dev limpio (0 system checks).
+• Pendiente warning en PaymentList → agregar order_by('-created_at').
+
+
+
+Filtrado instantáneo:
+• Añadido onchange="this.form.submit()" al <select> zona (sin backend extra).
+• Botón Filtrar se puede ocultar si ya no se usa.
+
+
+Filtrado instantáneo:
+• Añadido onchange="this.form.submit()" al <select> zona (sin backend extra).
+• Botón Filtrar se puede ocultar si ya no se usa.
+
+
+08 Jul 2025: Template create_order.html actualizado: se integra campo zone, se muestran errores globales y se alinea el orden de los campos.
+
+08 Jul 2025: Campo colonia expuesto en OrderRequestForm y plantilla de creación de pedido; facilita clasificación de pedidos por zona + colonia.
+08 Jul 2025: Se decidió hacer colonia obligatoria.  blank=False + migración
+
+08 Jul 2025: Añadido apps/orders/mixins.py con OperatorRequiredMixin; corrige ModuleNotFoundError y restaura todas las vistas de operador.
+
+8 Jul 2025: Filtrado de pedidos pendiente actualizado: zona y fecha funcionan de forma independiente y se combinan con lógica AND cuando ambos están presentes.
+
+09 Jul 2025: Aclaradas funciones de “Entregas de hoy” vs “Mis entregas asignadas”. Se entregan ambos templates con el diseño coral corporativo unificado y botones Tailwind.
+
+Nota 09‑jul‑2025
+Recordar que todo se ejecuta en Replit sin carpeta config: revisar cualquier import o setting que aún apunte allí antes de correr tests o deploy.
+
+
+09‑jul‑2025 – Corregido enlace en orders_history.html: ahora usa {% url 'payments:payment-create' order_pk=order.id %} para resolver NoReverseMatch.
+
+
+
+
+
+
+

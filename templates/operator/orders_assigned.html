@@ -1,77 +1,78 @@
 {% extends "base.html" %}
-{% block title %}Mis Entregas{% endblock %}
+{% block title %}Mis entregas asignadas · Rey Pipas{% endblock %}
 
 {% block content %}
-<div class="px-6">
-  <h1 class="text-2xl font-semibold mb-4">Mis entregas asignadas</h1>
+<style>
+  tbody tr:hover > td{background:#E5525F;color:#fff;}
+  button.btn-reject{background:#dc2626;color:#fff;font-size:0.75rem;font-weight:600;transition:.2s;}
+  button.btn-reject:hover{background:#990c02;}
+  button.btn-deliver{background:#16A34A;color:#fff;font-size:0.75rem;font-weight:600;transition:.2s;}
+  button.btn-deliver:hover{background:#4ade80;color:#000;}
+  tbody tr:hover button{border:2px solid currentColor;background:#fff;color:inherit;}
 
-  <table class="min-w-full text-sm border-collapse">
-    <thead class="bg-gray-100">
-      <tr>
-        <th class="px-4 py-2 text-left">ID</th>
-        <th class="px-4 py-2 text-left">Cliente</th>
-        <th class="px-4 py-2 text-right">Litros</th>
-        <th class="px-4 py-2 text-left">Estatus</th>
-        <th class="px-4 py-2 text-left">Chat</th>
-        <th class="px-4 py-2 text-center">Acciones</th>
-      </tr>
-    </thead>
+   /* === Mantener contraste de botones al pasar el ratón por la fila === */
+    tbody tr:hover .btn-reject{
+      background:#fff;
+      color:#dc2626;           /* rojo base */
+      border-color:#dc2626;
+    }
+    tbody tr:hover .btn-deliver{
+      background:#fff;
+      color:#16A34A;           /* verde base */
+      border-color:#16A34A;
+    }
+  </style>
 
-    <tbody>
-    {% for order in orders %}
-      <tr class="border-t">
-        <td class="px-4 py-2">{{ order.id }}</td>
-        <td class="px-4 py-2">{{ order.client.get_full_name }}</td>
-        <td class="px-4 py-2 text-right">{{ order.quantity_liters }}</td>
-        <td class="px-4 py-2">{{ order.get_status_display }}</td>
+<section class="mx-auto max-w-7xl px-4 py-12">
+  <h1 class="text-3xl sm:text-4xl font-extrabold text-brand mb-6 tracking-tight">
+    Mis entregas asignadas
+  </h1>
 
-        {# ───────────── Columna CHAT ───────────── #}
-        <td class="px-4 py-2">
-          <a href="{% url 'messages:order_chat' order.pk %}"
-             class="text-blue-600 hover:underline">
-             Abrir chat
-          </a>
-        </td>
+  {% if orders %}
+  <div class="overflow-x-auto bg-white shadow-md rounded-lg" style="border:1px solid #E5525F;">
+    <table class="w-full text-sm lg:text-base">
+      <thead>
+        <tr style="background:#E5525F;">
+          <th class="px-4 py-3 text-left font-semibold text-white uppercase">Nº</th>
+          <th class="px-4 py-3 text-left font-semibold text-white uppercase">Cliente</th>
+          <th class="px-4 py-3 text-right font-semibold text-white uppercase">Litros</th>
+          <th class="px-4 py-3 text-left font-semibold text-white uppercase">Estado</th>
+          <th class="px-4 py-3 text-left font-semibold text-white uppercase">Chat</th>
+          <th class="px-4 py-3 text-center font-semibold text-white uppercase">Acciones</th>
+        </tr>
+      </thead>
 
-        {# ───────────── Columna ACCIONES ───────────── #}
-        <td class="px-4 py-2 text-center">
-          {% if order.get_status_display == "Asignado" %}
-            <!-- Botón RECHAZAR -->
-            <form method="post"
-                  action="{% url 'orders_operator:reject' order.id %}"
-                  class="inline">
-              {% csrf_token %}
-              <button type="submit"
-                      style="background:#dc2626;color:#fff;padding:4px 8px;border-radius:4px;font-size:0.75rem;font-weight:600;"
-                      onmouseover="this.style.background='#990c02'"
-                      onmouseout="this.style.background='#dc2626'">
-                Rechazar
-              </button>
-            </form>
+      <tbody class="bg-white divide-y divide-gray-200">
+        {% for o in orders %}
+        <tr>
+          <td class="px-4 py-3 font-mono">{{ o.order_number }}</td>
+          <td class="px-4 py-3">{{ o.client.get_full_name }}</td>
+          <td class="px-4 py-3 text-right">{{ o.quantity_liters }}</td>
+          <td class="px-4 py-3">{{ o.get_status_display }}</td>
 
-            <!-- Botón MARCAR ENTREGADO -->
-            <form method="post"
-                  action="{% url 'orders_operator:deliver' order.id %}"
-                  class="inline ml-2">
-              {% csrf_token %}
-              <button type="submit"
-                      style="background:#16a34a;color:#fff;padding:4px 8px;border-radius:4px;font-size:0.75rem;font-weight:600;"
-                      onmouseover="this.style.background='#4ade80'; this.style.color='#000';"
-                      onmouseout="this.style.background='#16a34a'; this.style.color='#fff';">
-                Marcar&nbsp;entregado
-              </button>
-            </form>
-          {% endif %}
-        </td>
-      </tr>
-    {% empty %}
-      <tr>
-        <td colspan="6" class="px-4 py-6 text-center text-gray-500">
-          Aún no tienes entregas.
-        </td>
-      </tr>
-    {% endfor %}
-    </tbody>
-  </table>
-</div>
+          <td class="px-4 py-3">
+            <a href="{% url 'messages:order_chat' o.pk %}" class="text-blue-600 hover:underline">Chat</a>
+          </td>
+
+          <td class="px-4 py-3 text-center">
+            {% if o.status == "assigned" %}
+              <form method="post" action="{% url 'orders_operator:reject' o.pk %}" class="inline">
+                {% csrf_token %}
+                <button class="btn-reject px-2 py-1 rounded-md">Rechazar</button>
+              </form>
+              <form method="post" action="{% url 'orders_operator:deliver' o.pk %}" class="inline ml-2">
+                {% csrf_token %}
+                <button class="btn-deliver px-2 py-1 rounded-md">Entregado</button>
+              </form>
+            {% else %} — {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <p class="text-center text-gray-500">Aún no tienes entregas.</p>
+  {% endif %}
+</section>
 {% endblock %}

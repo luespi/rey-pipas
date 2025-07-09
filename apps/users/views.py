@@ -78,47 +78,70 @@ def register_view(request):
 
 
 
+from django.contrib import messages
+from django.urls import reverse
+from django.shortcuts import render, redirect
+from django.db.models import Sum
+from django.contrib.auth.decorators import login_required
+
+from .forms import UserProfileForm
+from .models import ClientProfile, OperatorProfile
 
 
 @login_required
 def profile_view(request):
     """
     Muestra el perfil del usuario y permite actualizar sus datos básicos.
-    Además calcula métricas de pedidos y litros reales cuando el usuario es cliente.
+    - Para clientes: crea automáticamente `ClientProfile` (campos permiten NULL).
+    - Para operadores: **solo** muestra el perfil existente; si falta, redirige
+      a una pantalla para completarlo (evita IntegrityError por campos NOT NULL).
     """
     user = request.user
 
-    # ---------- Formulario principal ----------
+    # ── Formulario de datos básicos ──────────────────────────────────────────
     form = UserProfileForm(
         request.POST or None,
         request.FILES or None,
-        instance=user
+        instance=user,
     )
 
-    # Guardar cambios básicos (nombre, teléfono, foto, etc.)
     if request.method == "POST" and form.is_valid():
         form.save()
         messages.success(request, "Perfil actualizado exitosamente.")
         return redirect("users:profile")
 
-    # ---------- Métricas de pedidos ----------
-    orders_count  = 0
-    total_liters  = 0
+    # ── Métricas de pedidos (solo clientes) ─────────────────────────────────
+    orders_count, total_liters = 0, 0
     if user.is_client:
-        from apps.orders.models import Order        # import local (evita circular)
+        from apps.orders.models import Order                 # evita import circular
         orders_qs = Order.objects.filter(client=user)
         orders_count = orders_qs.count()
         total_liters = orders_qs.aggregate(l=Sum("quantity_liters"))["l"] or 0
 
-
-    # ---------- Perfil extra ----------
+    # ── Perfil extra según tipo de usuario ──────────────────────────────────
     profile = None
     if user.is_client:
+        # En clientes los campos permiten creación automática
         profile, _ = ClientProfile.objects.get_or_create(user=user)
-    elif user.is_operator:
-        profile, _ = OperatorProfile.objects.get_or_create(user=user)
 
-    # ---------- Render ----------
+    elif user.is_operator:
+        # En operadores NO se puede crear perfil vacío → capturamos excepción
+        try:
+            profile = (
+                OperatorProfile.objects
+                .select_related("user")
+                .get(user=user)
+            )
+        except OperatorProfile.DoesNotExist:
+            messages.warning(
+                request,
+                "Aún no has completado tu información de operador. "
+                "Por favor llénala para poder ver tu perfil."
+            )
+            # Redirige a la vista donde completará los datos faltantes
+            return redirect("users:operator-profile-complete")
+
+    # ── Render ──────────────────────────────────────────────────────────────
     return render(
         request,
         "auth/profile.html",
@@ -130,8 +153,6 @@ def profile_view(request):
             "total_liters": total_liters,
         },
     )
-
-
 
 
 

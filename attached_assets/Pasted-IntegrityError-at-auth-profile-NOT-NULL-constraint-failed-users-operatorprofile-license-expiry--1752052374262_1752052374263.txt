@@ -1,0 +1,89 @@
+IntegrityError at /auth/profile/
+NOT NULL constraint failed: users_operatorprofile.license_expiry
+Request Method:	GET
+Request URL:	http://5465ca6d-2ff9-4996-b6a9-deb05bd925a8-00-tk2w8rsj0cib.kirk.replit.dev/auth/profile/
+Django Version:	5.0.2
+Exception Type:	IntegrityError
+Exception Value:	
+NOT NULL constraint failed: users_operatorprofile.license_expiry
+Exception Location:	/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/db/backends/sqlite3/base.py, line 329, in execute
+Raised during:	apps.users.views.profile_view
+Python Executable:	/home/runner/workspace/.pythonlibs/bin/python
+Python Version:	3.10.16
+Python Path:	
+['/home/runner/workspace',
+ '/nix/store/lc7qv2ldzrs1aq3hbyzmbgvn0h2w26pl-sitecustomize/lib/python/site-packages',
+ '/nix/store/izqbpf8fkd2741sqwdca4a9kfy3ss2dx-python3.10-pip-24.0/lib/python3.10/site-packages',
+ '/nix/store/qlb1pg370bb647nj4dhc81y2jszvciz7-python3-3.10.16/lib/python310.zip',
+ '/nix/store/qlb1pg370bb647nj4dhc81y2jszvciz7-python3-3.10.16/lib/python3.10',
+ '/nix/store/qlb1pg370bb647nj4dhc81y2jszvciz7-python3-3.10.16/lib/python3.10/lib-dynload',
+ '/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages',
+ '/nix/store/qlb1pg370bb647nj4dhc81y2jszvciz7-python3-3.10.16/lib/python3.10/site-packages',
+ '/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages',
+ '/nix/store/9ym4wlfl13w339g1jqpgp9llwrqml3jx-python3.10-setuptools-75.1.1/lib/python3.10/site-packages']
+Server time:	Wed, 09 Jul 2025 02:51:47 -0600
+Traceback Switch to copy-and-paste view
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/db/models/query.py, line 948, in get_or_create
+            return self.get(**kwargs), False …
+Local vars
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/db/models/query.py, line 649, in get
+            raise self.model.DoesNotExist( …
+Local vars
+During handling of the above exception (OperatorProfile matching query does not exist.), another exception occurred:
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/db/backends/utils.py, line 105, in _execute
+                return self.cursor.execute(sql, params) …
+Local vars
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/db/backends/sqlite3/base.py, line 329, in execute
+        return super().execute(query, params) …
+Local vars
+The above exception (NOT NULL constraint failed: users_operatorprofile.license_expiry) was the direct cause of the following exception:
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/core/handlers/exception.py, line 55, in inner
+                response = get_response(request) …
+Local vars
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/core/handlers/base.py, line 197, in _get_response
+                response = wrapped_callback(request, *callback_args, **callback_kwargs) …
+Local vars
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/contrib/auth/decorators.py, line 23, in _wrapper_view
+                return view_func(request, *args, **kwargs) …
+Local vars
+/home/runner/workspace/apps/users/views.py, line 119, in profile_view
+        profile, _ = OperatorProfile.objects.get_or_create(user=user) …
+Local vars
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/db/models/manager.py, line 87, in manager_method
+                return getattr(self.get_queryset(), name)(*args, **kwargs) …
+Local vars
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/db/models/query.py, line 955, in get_or_create
+                    return self.create(**params), True …
+Local vars
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/db/models/query.py, line 679, in create
+        obj.save(force_insert=True, using=self.db) …
+Local vars
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/db/models/base.py, line 822, in save
+        self.save_base( …
+Local vars
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/db/models/base.py, line 909, in save_base
+            updated = self._save_table( …
+Local vars
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/db/models/base.py, line 1067, in _save_table
+            results = self._do_insert( …
+Local vars
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/db/models/base.py, line 1108, in _do_insert
+        return manager._insert( …
+Local vars
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/db/models/manager.py, line 87, in manager_method
+                return getattr(self.get_queryset(), name)(*args, **kwargs) …
+Local vars
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/db/models/query.py, line 1847, in _insert
+        return query.get_compiler(using=using).execute_sql(returning_fields) …
+Local vars
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/db/models/sql/compiler.py, line 1823, in execute_sql
+                cursor.execute(sql, params) …
+Local vars
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/db/backends/utils.py, line 122, in execute
+            return super().execute(sql, params) …
+Local vars
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/db/backends/utils.py, line 79, in execute
+        return self._execute_with_wrappers( …
+Local vars
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/db/backends/utils.py, line 92, in _execute_with_wrappers
+        return executor(sql, params, many, context) 

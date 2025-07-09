@@ -3,20 +3,61 @@
 
 {% block content %}
 <section class="py-12 px-4">
-  
-   <!--  
-  <div class="bg-white shadow-lg border border-gray-100 rounded-2xl px-8 py-10 max-w-2xl mx-auto">
-  -->
   <div class="bg-white shadow-lg border border-gray-100 rounded-2xl px-8 py-10 max-w-2xl mx-auto">
 
     <h1 class="text-3xl font-extrabold text-brand mb-10 tracking-tight">
       Solicitar pipa de agua
     </h1>
 
+    <!-- Errores generales del formulario -->
+    {% if form.non_field_errors %}
+      <div class="mb-6 text-red-600">
+        {{ form.non_field_errors }}
+      </div>
+    {% endif %}
+
     <form method="post" novalidate class="space-y-7">
       {% csrf_token %}
+
+      <!-- 1) Zona -->
+      <div>
+        <label class="block text-base font-bold text-gray-800 mb-2 tracking-wide">
+          {{ form.zone.label }} <span class="text-brand">*</span>
+        </label>
+        {{ form.zone }}
+        {% if form.zone.errors %}
+          <p class="text-xs text-red-600 mt-1">{{ form.zone.errors|striptags }}</p>
+        {% endif %}
+      </div>
+
+
+
+      <!-- Colonia -->
+      <div>
+        <label class="block text-base font-bold text-gray-800 mb-2 tracking-wide">
+          {{ form.colonia.label }}<span class="text-brand">*</span>
+        </label>
+        {{ form.colonia }}
+        {% if form.colonia.errors %}
+          <p class="text-xs text-red-600 mt-1">{{ form.colonia.errors|striptags }}</p>
+        {% endif %}
+      </div>
+
+      <!-- 3) Dirección -->
+      <div>
+        <label class="block text-base font-bold text-gray-800 mb-2">
+          {{ form.delivery_address.label }} (lo que falta)<span class="text-brand">*</span>
+        </label>
+        {{ form.delivery_address }}
+        {% if form.delivery_address.errors %}
+          <p class="text-xs text-red-600 mt-1">{{ form.delivery_address.errors|striptags }}</p>
+        {% endif %}
+      </div>
+      
+
+      <!-- 2) Cantidad y fecha (grid 2 col) -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Quantity Liters -->
+        <!-- Litros solicitados -->
         <div>
           <label class="block text-base font-bold text-gray-800 mb-2 tracking-wide">
             {{ form.quantity_liters.label }} <span class="text-brand">*</span>
@@ -26,6 +67,13 @@
             <p class="text-xs text-red-600 mt-1">{{ form.quantity_liters.errors|striptags }}</p>
           {% endif %}
         </div>
+      
+        
+        
+        
+        
+        
+        
         <!-- Fecha de entrega -->
         <div>
           <label class="block text-base font-bold text-gray-800 mb-2 tracking-wide">
@@ -37,17 +85,10 @@
           {% endif %}
         </div>
       </div>
-      <!-- Dirección -->
-      <div>
-        <label class="block text-base font-bold text-gray-800 mb-2">
-          {{ form.delivery_address.label }} <span class="text-brand">*</span>
-        </label>
-        {{ form.delivery_address }}
-        {% if form.delivery_address.errors %}
-          <p class="text-xs text-red-600 mt-1">{{ form.delivery_address.errors|striptags }}</p>
-        {% endif %}
-      </div>
-      <!-- Horario preferido -->
+
+     
+
+      <!-- 4) Horario preferido -->
       <div>
         <label class="block text-base font-bold text-gray-800 mb-2">
           {{ form.delivery_time_preference.label }}
@@ -57,7 +98,8 @@
           <p class="text-xs text-red-600 mt-1">{{ form.delivery_time_preference.errors|striptags }}</p>
         {% endif %}
       </div>
-      <!-- Prioridad -->
+
+      <!-- 5) Prioridad -->
       <div>
         <label class="block text-base font-bold text-gray-800 mb-2">
           {{ form.priority.label }}
@@ -67,7 +109,8 @@
           <p class="text-xs text-red-600 mt-1">{{ form.priority.errors|striptags }}</p>
         {% endif %}
       </div>
-      <!-- Instrucciones especiales -->
+
+      <!-- 6) Instrucciones especiales -->
       <div>
         <label class="block text-base font-bold text-gray-800 mb-2">
           {{ form.special_instructions.label }}
@@ -77,6 +120,8 @@
           <p class="text-xs text-red-600 mt-1">{{ form.special_instructions.errors|striptags }}</p>
         {% endif %}
       </div>
+
+      <!-- Botón enviar -->
       <button type="submit"
               class="w-full bg-brand hover:bg-brandDark focus:ring-4 focus:ring-brand/30 text-white font-extrabold text-lg py-4 mt-4 rounded-lg shadow-md transition tracking-wide">
         Enviar solicitud

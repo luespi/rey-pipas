@@ -134,7 +134,7 @@ class Order(models.Model):
         choices=ZONES,
         blank=False,
     )
-    colonia = models.CharField("Colonia (opcional)", max_length=120, blank=True)
+    colonia = models.CharField("Colonia (opcional)", max_length=120, blank=False)
 
     delivery_date = models.DateField()
     delivery_time_preference = models.CharField(max_length=50, blank=True)
@@ -200,6 +200,23 @@ class Order(models.Model):
         if self.status in {self.Status.DELIVERED, self.Status.CANCELLED}:
             return False
         return timezone.now().date() > self.delivery_date
+
+    # ----------- Propiedades -----------
+    @property
+    def is_paid(self) -> bool:
+        """
+        Devuelve True si hay al menos un pago asociado.
+        Soporta tanto el related_name 'payments' como
+        el acceso por defecto 'payment_set'.
+        """
+        if hasattr(self, "payments"):
+            return self.payments.exists()
+        return self.payment_set.exists()
+
+
+
+
+
 
 
 

@@ -1,0 +1,100 @@
+NoReverseMatch at /orders/operator/history/
+Reverse for 'create' not found. 'create' is not a valid view function or pattern name.
+Request Method:	GET
+Request URL:	http://5465ca6d-2ff9-4996-b6a9-deb05bd925a8-00-tk2w8rsj0cib.kirk.replit.dev/orders/operator/history/
+Django Version:	5.0.2
+Exception Type:	NoReverseMatch
+Exception Value:	
+Reverse for 'create' not found. 'create' is not a valid view function or pattern name.
+Exception Location:	/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/urls/resolvers.py, line 851, in _reverse_with_prefix
+Raised during:	apps.orders.views_operator.OperatorHistoryListView
+Python Executable:	/home/runner/workspace/.pythonlibs/bin/python
+Python Version:	3.10.16
+Python Path:	
+['/home/runner/workspace',
+ '/nix/store/lc7qv2ldzrs1aq3hbyzmbgvn0h2w26pl-sitecustomize/lib/python/site-packages',
+ '/nix/store/izqbpf8fkd2741sqwdca4a9kfy3ss2dx-python3.10-pip-24.0/lib/python3.10/site-packages',
+ '/nix/store/qlb1pg370bb647nj4dhc81y2jszvciz7-python3-3.10.16/lib/python310.zip',
+ '/nix/store/qlb1pg370bb647nj4dhc81y2jszvciz7-python3-3.10.16/lib/python3.10',
+ '/nix/store/qlb1pg370bb647nj4dhc81y2jszvciz7-python3-3.10.16/lib/python3.10/lib-dynload',
+ '/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages',
+ '/nix/store/qlb1pg370bb647nj4dhc81y2jszvciz7-python3-3.10.16/lib/python3.10/site-packages',
+ '/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages',
+ '/nix/store/9ym4wlfl13w339g1jqpgp9llwrqml3jx-python3.10-setuptools-75.1.1/lib/python3.10/site-packages']
+Server time:	Wed, 09 Jul 2025 01:18:10 -0600
+Error during template rendering
+In template /home/runner/workspace/templates/operator/orders_history.html, error at line 42
+
+Reverse for 'create' not found. 'create' is not a valid view function or pattern name.
+32	          {{ order.actual_delivery_date|date:"d M Y H:i" }}
+33	        </td>
+34	        <td class="py-2 px-3">{{ order.quantity_liters }}</td>
+35	        <td class="py-2 px-3">{{ order.get_zone_display }}</td>
+36	
+37	        <td class="py-2 px-3">
+38	          {% if order.is_paid %}
+39	            <span class="text-green-600 font-semibold">Pagado</span>
+40	          {% else %}
+41	            <span class="text-red-600 font-semibold">Pendiente</span>
+42	            <a href="{% url 'payments:create' order.id %}"
+43	               class="ml-2 px-2 py-1 border rounded text-xs hover:bg-gray-100 transition">
+44	               Registrar&nbsp;pago
+45	            </a>
+46	          {% endif %}
+47	        </td>
+48	
+49	        <td class="py-2 px-3">
+50	          {% if order.rating %}
+51	            {{ order.rating.rating }}★
+52	          {% else %}
+Traceback Switch to copy-and-paste view
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/core/handlers/exception.py, line 55, in inner
+                response = get_response(request) …
+Local vars
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/core/handlers/base.py, line 220, in _get_response
+                response = response.render() …
+Local vars
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/template/response.py, line 114, in render
+            self.content = self.rendered_content …
+Local vars
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/template/response.py, line 92, in rendered_content
+        return template.render(context, self._request) …
+Local vars
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/template/backends/django.py, line 61, in render
+            return self.template.render(context) …
+Local vars
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/template/base.py, line 171, in render
+                    return self._render(context) …
+Local vars
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/template/base.py, line 163, in _render
+        return self.nodelist.render(context) …
+Local vars
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/template/base.py, line 1000, in render
+        return SafeString("".join([node.render_annotated(context) for node in self])) …
+Local vars
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/template/base.py, line 1000, in <listcomp>
+        return SafeString("".join([node.render_annotated(context) for node in self])) …
+Local vars
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/template/base.py, line 961, in render_annotated
+            return self.render(context) …
+Local vars
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/template/loader_tags.py, line 159, in render
+            return compiled_parent._render(context) …
+Local vars
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/template/base.py, line 163, in _render
+        return self.nodelist.render(context) …
+Local vars
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/template/base.py, line 1000, in render
+        return SafeString("".join([node.render_annotated(context) for node in self])) …
+Local vars
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/template/base.py, line 1000, in <listcomp>
+        return SafeString("".join([node.render_annotated(context) for node in self])) …
+Local vars
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/template/base.py, line 961, in render_annotated
+            return self.render(context) …
+Local vars
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/template/loader_tags.py, line 65, in render
+                result = block.nodelist.render(context) …
+Local vars
+/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/django/template/base.py, line 1000, in render
+        return SafeString("".join([node.render_annotated(context) for node in self])) 

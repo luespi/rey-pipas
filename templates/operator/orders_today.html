@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Entregas de hoy · Rey Pipas{% endblock %}
+
+{% block content %}
+<style>
+  tbody tr:hover > td{background:#E5525F;color:#fff;}
+  button.btn-deliver{background:#16A34A;color:#fff;font-weight:600;transition:.2s;}
+  tbody tr:hover button.btn-deliver{background:#fff;color:#16A34A;border:2px solid #16A34A;}
+</style>
+
+<section class="mx-auto max-w-7xl px-4 py-12">
+  <h1 class="text-3xl sm:text-4xl font-extrabold text-brand mb-6 tracking-tight">
+    Entregas de hoy
+  </h1>
+
+  {% if orders %}
+  <div class="overflow-x-auto bg-white shadow-md rounded-lg" style="border:1px solid #E5525F;">
+    <table class="w-full text-sm lg:text-base">
+      <thead>
+        <tr style="background:#E5525F;">
+          <th class="px-4 py-3 text-left font-semibold text-white uppercase">Nº</th>
+          <th class="px-4 py-3 text-left font-semibold text-white uppercase">Cliente</th>
+          <th class="px-4 py-3 text-right font-semibold text-white uppercase">Litros</th>
+          <th class="px-4 py-3 text-left font-semibold text-white uppercase">Estado</th>
+          <th class="px-4 py-3 text-left font-semibold text-white uppercase">Acción</th>
+        </tr>
+      </thead>
+
+      <tbody class="bg-white divide-y divide-gray-200">
+        {% for o in orders %}
+        <tr>
+          <td class="px-4 py-3 font-mono">{{ o.order_number }}</td>
+          <td class="px-4 py-3">{{ o.client.get_full_name }}</td>
+          <td class="px-4 py-3 text-right">{{ o.quantity_liters }}</td>
+          <td class="px-4 py-3">{{ o.get_status_display }}</td>
+          <td class="px-4 py-3">
+            {% if o.status == "assigned" %}
+              <form method="post" action="{% url 'orders_operator:deliver' o.pk %}">
+                {% csrf_token %}
+                <button class="btn-deliver px-3 py-1 rounded-full shadow">
+                  Marcar entregado
+                </button>
+              </form>
+            {% else %} — {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <p class="text-center text-gray-500">No tienes entregas programadas para hoy.</p>
+  {% endif %}
+</section>
+{% endblock %}

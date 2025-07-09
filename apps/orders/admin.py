@@ -31,7 +31,7 @@ class OrderRatingInline(admin.StackedInline):
 from django.contrib import admin
 from django.utils.html import format_html
 from .models import Order
-from .inlines import OrderStatusHistoryInline, OrderRatingInline
+#from .inlines import OrderStatusHistoryInline, OrderRatingInline
 
 
 @admin.register(Order)

@@ -43,9 +43,20 @@
     {% endif %}
     {# ---------------- OPERADOR ---------------- #}
     {% if request.user.is_authenticated and request.user.user_type == 'operator' %}
-      <li><a href="{% url 'orders:orders_operator:pending' %}" class="text-gray-900 hover:text-brand transition">Pedidos&nbsp;pendientes</a></li>
-      <li><a href="{% url 'orders:orders_operator:assigned' %}" class="text-gray-900 hover:text-brand transition">Mis&nbsp;entregas</a></li>
+      <li><a href="{% url 'orders:orders_operator:pending' %}"
+             class="text-gray-900 hover:text-brand transition">Pedidos&nbsp;pendientes</a></li>
+
+      <li><a href="{% url 'orders:orders_operator:today' %}"
+             class="text-gray-900 hover:text-brand transition">Entregas&nbsp;de&nbsp;hoy</a></li>
+
+      <li><a href="{% url 'orders:orders_operator:assigned' %}"
+             class="text-gray-900 hover:text-brand transition">Mis&nbsp;entregas</a></li>
+
+      <!-- NUEVA línea -->
+      <li><a href="{% url 'orders:orders_operator:history' %}"
+             class="text-gray-900 hover:text-brand transition">Historial&nbsp;de&nbsp;entregas</a></li>
     {% endif %}
+
     {# ---------------- PERFIL & SALIR ---------------- #}
     {% if request.user.is_authenticated %}
       <li><a href="{% url 'users:profile' %}" class="text-gray-900 hover:text-brand transition">Mi&nbsp;perfil</a></li>
@@ -68,12 +79,24 @@
     {% endif %}
     {# ---------------- OPERADOR ---------------- #}
     {% if request.user.is_authenticated and request.user.user_type == 'operator' %}
-      <li><a href="{% url 'orders:orders_operator:pending' %}" class="block px-6 py-3 text-gray-900 hover:text-brand">Pedidos&nbsp;pendientes</a></li>
-      <li><a href="{% url 'orders:orders_operator:assigned' %}" class="block px-6 py-3 text-gray-900 hover:text-brand">Mis&nbsp;entregas</a></li>
+      <li><a href="{% url 'orders:orders_operator:pending' %}"
+             class="block px-6 py-3 text-gray-900 hover:text-brand">Pedidos&nbsp;pendientes</a></li>
+
+      <li><a href="{% url 'orders:orders_operator:today' %}"
+             class="block px-6 py-3 text-gray-900 hover:text-brand">Entregas&nbsp;de&nbsp;hoy</a></li>
+
+      <li><a href="{% url 'orders:orders_operator:assigned' %}"
+             class="block px-6 py-3 text-gray-900 hover:text-brand">Mis&nbsp;entregas</a></li>
+
+      <!-- NUEVA línea -->
+      <li><a href="{% url 'orders:orders_operator:history' %}"
+             class="block px-6 py-3 text-gray-900 hover:text-brand">Historial&nbsp;de&nbsp;entregas</a></li>
     {% endif %}
+
     {# ---------------- PERFIL & SALIR ---------------- #}
     {% if request.user.is_authenticated %}
       <li><a href="{% url 'users:profile' %}" class="block px-6 py-3 text-gray-900 hover:text-brand">Mi&nbsp;perfil</a></li>
+    
     {% endif %}
     <li><a href="{% url 'users:logout' %}" class="block px-6 py-3 text-gray-900 hover:text-brand">Salir</a></li>
   </ul>

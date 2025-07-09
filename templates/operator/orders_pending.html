@@ -1,49 +1,82 @@
 {% extends "base.html" %}
-{% block title %}Pedidos Pendientes{% endblock %}
+{% block title %}Pedidos pendientes · Rey Pipas{% endblock %}
 
 {% block content %}
-<div class="px-6">   {# ← margen izquierdo / derecho #}
+<style>
+  /* Hover coral fila completa */
+  tbody tr:hover > td { background-color:#E5525F; color:#fff; }
 
-  <h1 class="text-2xl font-semibold mb-4">Pedidos pendientes</h1>
+  /* Botón Aceptar – estados */
+  button.btn-accept { background:#16A34A; color:#fff; font-weight:600; transition:.2s; }
+  tbody tr:hover button.btn-accept { background:#fff; color:#16A34A; border:2px solid #16A34A; }
 
-  <table class="min-w-full text-sm border-collapse">
-    <thead class="bg-gray-100">
-      <tr>
-        <th class="px-4 py-2 text-left">ID</th>
-        <th class="px-4 py-2 text-left">Cliente</th>
-        <th class="px-4 py-2 text-right">Litros</th>
-        <th class="px-4 py-2 text-left">Zona</th>
-        <th class="px-4 py-2"></th>  {# botón #}
-      </tr>
-    </thead>
+  /* Inputs de filtro alineados */
+  form.filters select, form.filters input { min-width:140px; }
+</style>
 
-    <tbody>
-    {% for order in orders %}
-      <tr class="border-t">
-        <td class="px-4 py-2">{{ order.id }}</td>
-        <td class="px-4 py-2">{{ order.client.get_full_name }}</td>
-        <td class="px-4 py-2 text-right">{{ order.quantity_liters }}</td>
-        <td class="px-4 py-2">{{ order.delivery_zone|default:"—" }}</td>
-        <td class="px-4 py-2">
-          <form method="post"
-                action="{% url 'orders:orders_operator:accept' order.id %}">
-            {% csrf_token %}
-            <button type="submit"
-                    class="bg-green-600 text-white px-3 py-1 rounded hover:opacity-90">
-              Aceptar
-            </button>
-          </form>
-        </td>
-      </tr>
-    {% empty %}
-      <tr>
-        <td colspan="5" class="px-4 py-6 text-center text-gray-500">
-          No hay pedidos pendientes.
-        </td>
-      </tr>
-    {% endfor %}
-    </tbody>
-  </table>
+<section class="mx-auto max-w-7xl px-4 py-12">
+  <h1 class="text-3xl sm:text-4xl font-extrabold text-brand mb-6 tracking-tight">Pedidos pendientes</h1>
 
-</div>
+  {# ---------- Filtros rápidos ---------- #}
+  <form method="get" class="filters flex flex-wrap gap-3 mb-6">
+    <select name="zona" class="border rounded px-2 py-1"
+            onchange="this.form.submit()">
+      <option value="">--Todas las zonas--</option>
+      {% for code,label in zonas %}
+        <option value="{{ code }}" {% if request.GET.zona == code %}selected{% endif %}>
+          {{ label }}
+        </option>
+      {% endfor %}
+    </select>
+
+    <input type="date" name="fecha" value="{{ request.GET.fecha }}"
+           class="border rounded px-2 py-1"
+           onchange="this.form.submit()">
+
+    {# Botones rápidos Borrar / Hoy #}
+    <button type="button" onclick="document.querySelector('input[name=fecha]').value=''; this.form.submit();"
+            class="text-brand font-semibold text-sm">Borrar</button>
+    <button type="button" onclick="document.querySelector('input[name=fecha]').value=(new Date()).toISOString().slice(0,10); this.form.submit();"
+            class="text-brand font-semibold text-sm">Hoy</button>
+  </form>
+
+  {% if orders %}
+  <div class="overflow-x-auto bg-white shadow-md rounded-lg" style="border:1px solid #E5525F;">
+    <table class="w-full text-sm lg:text-base">
+      <thead>
+        <tr style="background:#E5525F;">
+          <th class="px-4 py-3 text-left font-semibold text-white uppercase">Nº</th>
+          <th class="px-4 py-3 text-left font-semibold text-white uppercase">Cliente</th>
+          <th class="px-4 py-3 text-right font-semibold text-white uppercase">Litros</th>
+          <th class="px-4 py-3 text-left font-semibold text-white uppercase">Zona</th>
+          <th class="px-4 py-3 text-left font-semibold text-white uppercase">Colonia</th>
+          <th class="px-4 py-3 text-left font-semibold text-white uppercase">Fecha</th>
+          <th class="px-4 py-3 text-left font-semibold text-white uppercase">Acción</th>
+        </tr>
+      </thead>
+
+      <tbody class="bg-white divide-y divide-gray-200">
+        {% for order in orders %}
+        <tr>
+          <td class="px-4 py-3 font-mono">{{ order.order_number }}</td>
+          <td class="px-4 py-3">{{ order.client.get_full_name }}</td>
+          <td class="px-4 py-3 text-right">{{ order.quantity_liters }}</td>
+          <td class="px-4 py-3">{{ order.get_zone_display }}</td>
+          <td class="px-4 py-3">{{ order.colonia }}</td>
+          <td class="px-4 py-3">{{ order.delivery_date|date:"d M Y" }}</td>
+          <td class="px-4 py-3">
+            <form method="post" action="{% url 'orders_operator:accept' order.pk %}">
+              {% csrf_token %}
+              <button class="btn-accept px-3 py-1 rounded-full shadow">Aceptar</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <p class="text-center text-gray-500">No hay pedidos pendientes.</p>
+  {% endif %}
+</section>
 {% endblock %}

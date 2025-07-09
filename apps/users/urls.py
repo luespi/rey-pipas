@@ -29,4 +29,11 @@ urlpatterns = [
 
     # Dashboard redirect
     path("dashboard/", views.dashboard_redirect, name="dashboard_redirect"),
+
+    path(
+        "profile/operator-complete/",
+        OperatorProfileCompleteView.as_view(),
+        name="operator-profile-complete",
+    )
+
 ]

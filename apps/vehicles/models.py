@@ -1,16 +1,17 @@
 """
 apps/vehicles/models.py
-Modelos de vehículos y mantenimiento – Rey Pipas
+Modelos de vehículos y mantenimiento – Rey Pipas
 """
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.utils import timezone
 
 
 class Vehicle(models.Model):
-    """Modelo de vehículos/pipas de agua"""
+    """Modelo de pipas de agua (camiones cisterna)."""
 
     # ---------------- Choices ----------------
     class Status(models.TextChoices):
@@ -20,15 +21,13 @@ class Vehicle(models.Model):
         RETIRED = "retired", "Retirado"
 
     class VehicleType(models.TextChoices):
-        SMALL = "small", "Pequeña (≤ 5 000 L)"
-        MEDIUM = "medium", "Mediana (5 000 – 10 000 L)"
-        LARGE = "large", "Grande (10 000 – 20 000 L)"
-        EXTRA_LARGE = "extra_large", "Extra Grande (> 20 000 L)"
+        SMALL = "small", "Pequeña (≤ 5 000 L)"
+        MEDIUM = "medium", "Mediana (5 000 – 10 000 L)"
+        LARGE = "large", "Grande (10 000 – 20 000 L)"
+        EXTRA_LARGE = "extra_large", "Extra Grande (> 20 000 L)"
 
     # -------------- Identificación --------------
-    license_plate = models.CharField(
-        "Placas", max_length=10, unique=True
-    )
+    license_plate = models.CharField("Placas", max_length=10, unique=True)
     brand = models.CharField("Marca", max_length=50)
     model = models.CharField("Modelo", max_length=50)
     year = models.PositiveSmallIntegerField(
@@ -79,28 +78,16 @@ class Vehicle(models.Model):
     # -------------- Documentación --------------
     registration_expiry = models.DateField("Vencimiento de Registro")
     insurance_expiry = models.DateField("Vencimiento de Seguro")
-    last_maintenance = models.DateField(
-        "Último Mantenimiento", null=True, blank=True
-    )
-    next_maintenance = models.DateField(
-        "Próximo Mantenimiento", null=True, blank=True
-    )
+    last_maintenance = models.DateField("Último Mantenimiento", null=True, blank=True)
+    next_maintenance = models.DateField("Próximo Mantenimiento", null=True, blank=True)
 
     # -------------- Localización --------------
-    current_location = models.CharField(
-        "Ubicación Actual", max_length=200, blank=True
-    )
-    odometer_reading = models.PositiveIntegerField(
-        "Kilometraje", default=0
-    )
+    current_location = models.CharField("Ubicación Actual", max_length=200, blank=True)
+    odometer_reading = models.PositiveIntegerField("Kilometraje", default=0)
 
     # -------------- Metadatos --------------
-    created_at = models.DateTimeField(
-        "Fecha de Registro", auto_now_add=True
-    )
-    updated_at = models.DateTimeField(
-        "Última Actualización", auto_now=True
-    )
+    created_at = models.DateTimeField("Fecha de Registro", auto_now_add=True)
+    updated_at = models.DateTimeField("Última Actualización", auto_now=True)
 
     # ---------------- Meta ----------------
     class Meta:
@@ -112,12 +99,8 @@ class Vehicle(models.Model):
             models.Index(fields=["assigned_operator"]),
         ]
         constraints = [
-            models.UniqueConstraint(
-                fields=["engine_number"], name="unique_engine_number"
-            ),
-            models.UniqueConstraint(
-                fields=["chassis_number"], name="unique_chassis_number"
-            ),
+            models.UniqueConstraint(fields=["engine_number"], name="unique_engine_number"),
+            models.UniqueConstraint(fields=["chassis_number"], name="unique_chassis_number"),
         ]
 
     # -------------- Validaciones extra --------------
@@ -134,6 +117,11 @@ class Vehicle(models.Model):
     def __str__(self):
         return f"{self.license_plate} — {self.brand} {self.model}"
 
+    # Alias para evitar confusiones (ej. vehicle.plate)
+    @property
+    def plate(self) -> str:
+        return self.license_plate
+
     @property
     def is_available(self) -> bool:
         """¿Está activo y sin bloqueo?"""
@@ -142,10 +130,7 @@ class Vehicle(models.Model):
     @property
     def needs_maintenance(self) -> bool:
         """¿Fecha próxima de mantenimiento vencida?"""
-        return (
-            self.next_maintenance
-            and timezone.now().date() >= self.next_maintenance
-        )
+        return self.next_maintenance and timezone.now().date() >= self.next_maintenance
 
     @property
     def documents_expired(self) -> bool:
