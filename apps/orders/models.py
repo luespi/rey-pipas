@@ -148,7 +148,8 @@ class Order(models.Model):
 
     special_instructions = models.TextField(blank=True)
     notes = models.TextField(blank=True)
-
+    # Fecha en la que el operador aceptó el pedido
+    assigned_at = models.DateTimeField(null=True, blank=True)
     actual_delivery_date = models.DateTimeField(null=True, blank=True)
     delivery_confirmation_code = models.CharField(max_length=6, blank=True)
 

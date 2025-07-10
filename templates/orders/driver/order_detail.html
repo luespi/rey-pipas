@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Pedido #{{ object.pk }}</h1>
+
+<h2>Datos del cliente</h2>
+<p>{{ object.customer.full_name }} <br>
+   {{ object.address.street }} {{ object.address.ext_number }}<br>
+   {{ object.address.neighborhood }} – {{ object.address.zipcode }}</p>
+
+<h2>Detalle</h2>
+<ul>
+  <li>Zona: {{ object.zone }}</li>
+  <li>Fecha entrega: {{ object.delivery_date }}</li>
+  <li>Litros: {{ object.litres }}</li>
+  <li>Estatus: {{ object.get_status_display }}</li>
+</ul>
+
+{% if object.review %}
+  <h2>Calificación del cliente</h2>
+  <p>★ {{ object.review.rating }} / 5</p>
+  <blockquote>{{ object.review.comment }}</blockquote>
+{% endif %}
+
+<a href="{% url 'orders:driver_order_list' %}">← Volver al listado</a>
+{% endblock %}

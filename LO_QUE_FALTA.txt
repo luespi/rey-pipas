@@ -3,4 +3,5 @@ Cuando edito mi perfil para poner los datos que faltan, todos los que son de fec
 Por otro lado, sería bueno que cuando vea mi perfil, se vea el perfil extendido.
 
 
-Yo registré a un nuevo usuario, como cliente, y el nuevo usuario dio de alta un pedido, y luego registré en otro navegador a un cliente como operador, y el operador vio el pedido que había registrado el cliente que acababa yo de registrar, y pues lo aceptó, pero no aparece en su lista de pedidos, o sea, no aparece ni en mis entregas, ni en entregas de hoy, ni en historial de entregas, no aparece ninguno de esos, lo cual es bastante grave, hay que resolver eso.
+
+

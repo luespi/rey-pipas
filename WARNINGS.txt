@@ -1,0 +1,31 @@
+Resumen ejecutivo del estado actual
+Aspecto	Situación	Observaciones / Próximos pasos
+Pruebas automáticas	pytest → 2 tests OK / 0 fallos. Solo 4 warnings (deprecación y ordenación).	Funcionalidad mínima viable cubierta. Mantener la costumbre de añadir nuevos tests por cada corrección o feature.
+Migraciones	Base de datos actualizada, sin migraciones pendientes.	Correcto. Recuerda generar migraciones cada vez que toquemos los modelos.
+Servidor de desarrollo	Arranca sin errores: System check identified no issues.	Funcionamiento estable. En producción usar DEBUG=False, whitenoise o S3 para estáticos, etc.
+Flujo de operador	Desde el panel web el operador (id 41) pudo: 1) listar pedidos pendientes, 2) asignarse varios, 3) marcarlos como entregados, 4) abrir threads de mensajería y 5) generar calificaciones.	Lo importante: vehicle_id se guarda NULL si el operador no tiene un vehículo activo. Así validamos tu requisito de “asignarse sin pipa registrada”. Más abajo propongo mejoras para evitar datos huérfanos.
+Pagos	Los tests de creación y listado de pagos (payments app) pasan. En los logs no hay inserciones reales, pero las verificaciones de “¿existe un pago para este pedido?” funcionan.	Falta exponer la creación/listado en la UI del operador/cliente si procede.
+Mensajería interna	Cada vez que se asigna un pedido, se crea automáticamente el thread en pipa_messages_thread.	✅
+Rendimiento	Todas las consultas están en < 10 ms; la mayoría son atómicas mediante transacciones y savepoints.	Para producción convendrá: índices en campos muy filtrados (orders_order.zone, delivery_date, status) y paginar resultados grandes.
+
+Warnings detectados (no bloqueantes)
+STATICFILES_STORAGE deprecado → A partir de Django 5.1 se debe usar el nuevo ajuste STORAGES.
+Acción: migrar a la sintaxis recomendada o añadir un TODO en settings.py.
+
+Directorio /staticfiles/ no existe → solo es un aviso de runserver.
+Acción: crear la carpeta (vacía) o configurar otro STATIC_ROOT para silenciarlo.
+
+UnorderedObjectListWarning en PaymentListView → el QuerySet no tiene .order_by(), la paginación puede ser inconsistente.
+Acción: agregar un ordering = ['-created_at'] (u otro campo) en la class‑based view o en el modelo Payment.
+
+Otros warnings menores (p.ej. RemovedInDjango51Warning de libs externas).
+Acción: mantener las dependencias actualizadas.
+
+Riesgos y pequeñas deudas técnicas detectadas
+Riesgo	Descripción	Propuesta rápida
+Pedidos sin vehículo	Por diseño actual vehicle_id permite NULL. Bien para la MVP, pero: a) dificulta trazabilidad logística, b) impide controlar capacidad/volumen.	- Si el operador sí tiene un vehículo activo, autocompletarlo.
+- Si no lo tiene, mostrar banner recordatorio en el dashboard para que lo registre.
+Faltan validaciones de negocio	Ej. limitar el número de pedidos totales o de litros que un operador pudo asignarse por día/hora.	Añadir reglas en el service layer o señal pre_save de Order.
+Mensajería	El thread se crea, pero falta interfaz para ver/enviar mensajes (si aún no existe).	Priorizar junto con próximas tareas.
+Pagos con pedido entregado	Insertamos una calificación, pero no hay flujo de cobro automático ni verificación de payment.status.	Definir y testear el happy path de pago (crear → aprobar → conciliar).
+

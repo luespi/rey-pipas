@@ -24,14 +24,14 @@ class OperatorRequiredMixin(UserPassesTestMixin):
 # --------------------------------------------------------------------------- #
 #  1. Cola de pedidos pendientes
 # --------------------------------------------------------------------------- #
-        from datetime import date
+from datetime import date
         # …importaciones que ya tienes…
-        from django.views.generic import ListView
+from django.views.generic import ListView
 
         # --------------------------------------------------------------------------- #
         #  1. Cola de pedidos pendientes
         # --------------------------------------------------------------------------- #
-        class OperatorPendingListView(LoginRequiredMixin, OperatorRequiredMixin, ListView):
+class OperatorPendingListView(LoginRequiredMixin, OperatorRequiredMixin, ListView):
             template_name = "operator/orders_pending.html"
             context_object_name = "orders"
 
@@ -105,51 +105,53 @@ class OperatorTodayListView(LoginRequiredMixin, OperatorRequiredMixin, ListView)
 # --------------------------------------------------------------------------- #
 #  4. Aceptar pedido
 # --------------------------------------------------------------------------- #
+        # apps/orders/views_operator.py
 class OperatorAcceptOrderView(LoginRequiredMixin, OperatorRequiredMixin, View):
-    """
-    El operador intenta tomar un pedido pendiente.
-    Utilizamos select_for_update dentro de una transacción
-    para evitar que otro operador lo tome al mismo tiempo.
-    """
-    success_url = reverse_lazy("orders_operator:assigned")
+            success_url = reverse_lazy("orders_operator:assigned")
 
-    def post(self, request, pk):
-        with transaction.atomic():
-            order = (
-                Order.objects
-                .select_for_update()
-                .filter(pk=pk, status="pending", operator__isnull=True)
-                .first()
-            )
-            if not order:
-                messages.error(request, "Otro operador ya tomó este pedido.")
-                return redirect("orders_operator:pending")
+            def post(self, request, pk):
+                with transaction.atomic():
+                    order = (
+                        Order.objects
+                        .select_for_update()
+                        .filter(pk=pk, status="pending", operator__isnull=True)
+                        .first()
+                    )
+                    if not order:
+                        messages.error(request, "Otro operador ya tomó este pedido.")
+                        return redirect("orders_operator:pending")
 
-            # Verificar pipa activa
-            vehicle = (
-                Vehicle.objects
-                .filter(assigned_operator=request.user, status="active")
-                .first()
-            )
-            if vehicle is None:
-                messages.error(
-                    request,
-                    "No tienes una pipa activa asignada. Contacta a un administrador.",
-                )
-                return redirect("orders_operator:pending")
+                    # --- NUEVO: vehículo opcional ----------------------------------
+                    vehicle = (
+                        Vehicle.objects
+                        .filter(assigned_operator=request.user, status="active")
+                        .first()
+                    )
+                    # Si no hay pipa, seguimos sin bloquear el flujo
+                    if vehicle:
+                        order.vehicle = vehicle       # se guarda solo si existe
+                    # ----------------------------------------------------------------
 
-            # Asignar
-            order.operator = request.user
-            order.vehicle = vehicle
-            order.status = "assigned"
-            order.assigned_at = timezone.now()
-            order.save()
+                    order.operator   = request.user
+                    order.status     = "assigned"
+                    order.assigned_at = timezone.now()
+                    order.save()
 
-            # Crear hilo de chat si no existe
-            Thread.objects.get_or_create(order=order)
+                    Thread.objects.get_or_create(order=order)
 
-        messages.success(request, f"Pedido {order.order_number} asignado correctamente.")
-        return redirect(self.success_url)
+                messages.success(request, f"Pedido {order.order_number} asignado correctamente.")
+                return redirect(self.success_url)
+
+
+
+
+
+
+
+
+
+
+
 
 
 # --------------------------------------------------------------------------- #
@@ -288,3 +290,19 @@ class OperatorHistoryListView(LoginRequiredMixin, ListView):
                  .select_related("client")             # ← antes era customer
                  .order_by("-actual_delivery_date")    # ← campo correcto
         )
+
+
+
+
+
+
+
+
+# orders/views_operator.py  ← dentro de la MISMA app
+from django.views.generic import DetailView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from .models import Order
+
+class OperatorOrderDetailView(LoginRequiredMixin, DetailView):
+    model = Order
+    template_name = "orders/order_detail.html"  # usa tu ruta real

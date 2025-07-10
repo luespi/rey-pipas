@@ -285,3 +285,10 @@ Recordar que todo se ejecuta en Replit sin carpeta config: revisar cualquier imp
 
 
 
+
+
+[Quincena 3] Flujo de aceptación sin pipa
+– Se retiró la validación estricta de vehículo.
+– El operador puede aceptar pedidos aunque vehicle=None.
+– Campo vehicle se llenará más adelante cuando exista UI de flotilla.
+Commit aplicado en views_operator.py (fecha 2025‑07‑10).

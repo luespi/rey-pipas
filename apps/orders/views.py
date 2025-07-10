@@ -153,3 +153,17 @@ class PaymentList(LoginRequiredMixin, ListView):
             .filter(order__client=self.request.user)
             .select_related('order')
         )
+
+
+# orders/views.py
+from django.views.generic import DetailView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from .models import Order
+
+class OrderDetailView(LoginRequiredMixin, DetailView):
+    model = Order
+    template_name = "orders/driver/order_detail.html"
+
+    def get_queryset(self):
+        # Solo los pedidos del chofer logueado
+        return super().get_queryset().filter(driver=self.request.user)

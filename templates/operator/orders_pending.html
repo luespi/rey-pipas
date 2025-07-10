@@ -58,7 +58,13 @@
       <tbody class="bg-white divide-y divide-gray-200">
         {% for order in orders %}
         <tr>
-          <td class="px-4 py-3 font-mono">{{ order.order_number }}</td>
+          <td class="px-4 py-3 font-mono">
+            <a href="{% url 'orders_operator:detail' order.pk %}"
+               class="underline hover:text-brand">
+               {{ order.order_number }}
+            </a>
+          </td>
+
           <td class="px-4 py-3">{{ order.client.get_full_name }}</td>
           <td class="px-4 py-3 text-right">{{ order.quantity_liters }}</td>
           <td class="px-4 py-3">{{ order.get_zone_display }}</td>

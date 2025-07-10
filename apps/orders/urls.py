@@ -5,6 +5,7 @@ from .views import (
     my_orders_view,
     rate_order_view,
     order_detail_view,
+    OrderDetailView,
 )
 
 app_name = "orders"
@@ -24,6 +25,11 @@ urlpatterns = [
             namespace="orders_operator",
         ),
     ),
+
+
+
+    path("driver/orders/<int:pk>/", OrderDetailView.as_view(),
+         name="driver_order_detail"),
 ]
 
 
