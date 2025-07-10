@@ -217,15 +217,28 @@ class ClientExtraForm(forms.ModelForm):
         ]
 
 # ╭─────────────────── FORM EXTRA · OPERADOR ───────────────────╮
+# apps/users/forms.py  (formulario que uses para el perfil de operador)
+from django import forms
+from .models import OperatorProfile
+
 class OperatorExtraForm(forms.ModelForm):
+    license_expiry = forms.DateField(
+        widget=forms.DateInput(
+            attrs={"type": "date"}            # muestra calendario nativo
+        ),
+        input_formats=["%Y-%m-%d"],           # AAAA-MM-DD
+        help_text="Formato: AAAA‑MM‑DD",
+    )
+
     class Meta:
-        model = OperatorProfile
+        model  = OperatorProfile
         fields = [
-            "license_number",
-            "license_expiry",
-            "emergency_contact_name",
-            "emergency_contact_phone",
+            "license_number", "license_expiry", "hire_date",
+            "emergency_contact_name", "emergency_contact_phone",
         ]
+        widgets = {
+            "hire_date": forms.DateInput(attrs={"type": "date"}),
+        }
 
 
 
