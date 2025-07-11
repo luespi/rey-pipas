@@ -3,5 +3,16 @@ Cuando edito mi perfil para poner los datos que faltan, todos los que son de fec
 Por otro lado, sería bueno que cuando vea mi perfil, se vea el perfil extendido.
 
 
+A ver, tenemos que hacer que cada listado del chofer tenga el link en el número del pedido para que al hacerle clic nos muestre todo el detalle absolutamente completo del pedido pues para poderlo aceptar.
 
+Tenemos que hacer que en el historial de entregas del chofer, este, la línea externa que está de color como azul, hay que ponerlo del color de la empresa. Nada más con ese cambio está bien, lo demás es aceptable, se ve bien.
+
+Tenemos que hacer que se pueda, donde voy a registrar el pago, pues que se registre el pago, no sé cómo, pero pues que se registre el pago, que el chofer registre ese pago, y de alguna manera ese registro de que ya se pagó, se vea reflejado inmediatamente también en el listado del cliente.
+
+
+Tenemos que hacer que el diseño del chat se vea bien, porque se ve horrible ahorita.
+
+Y tenemos que hacer eso de la primera parte de la aplicación PWA.
+
+Y entrando un poco en la quincena 4, hay que utilizar Jasmine para el administrador.
 

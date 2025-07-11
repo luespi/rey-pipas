@@ -303,6 +303,15 @@ from django.views.generic import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Order
 
+# ... imports arriba ...
 class OperatorOrderDetailView(LoginRequiredMixin, DetailView):
+    """
+    Detalle de un pedido visto por el operador.
+    """
     model = Order
-    template_name = "orders/order_detail.html"  # usa tu ruta real
+    # Usa la MISMA carpeta donde están tus plantillas de operador
+    template_name = "orders/operator/order_detail.html"   # <– AJUSTA ruta según tu estructura
+
+    def get_queryset(self):
+        # Sólo pedidos que pertenecen al operador logueado
+        return super().get_queryset().filter(operator=self.request.user)

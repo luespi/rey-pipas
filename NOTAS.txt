@@ -292,3 +292,13 @@ Recordar que todo se ejecuta en Replit sin carpeta config: revisar cualquier imp
 – El operador puede aceptar pedidos aunque vehicle=None.
 – Campo vehicle se llenará más adelante cuando exista UI de flotilla.
 Commit aplicado en views_operator.py (fecha 2025‑07‑10).
+
+
+(11‑jul‑25) Alineación final Q3:
+• Flujo chofer completo (listados, detalle, pagos, comentarios).
+• “Operador/Administrador” se posterga a Q4 y se implementará vía Django Admin con:
+     - usuario staff “cliente”
+     - grupo “Administradores” permisos limitados
+     - ModelAdmin sin delete
+     - branding CSS ligero
+• Warnings menores documentados; indices y STATICFILES_STORAGE quedan como TODO Q4.
