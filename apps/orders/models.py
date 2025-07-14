@@ -9,6 +9,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.utils import timezone
 
+from decimal import Decimal
 
 
 from django.conf import settings
@@ -156,6 +157,13 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal("0.00"),
+        help_text="Precio total del pedido en MXN"
+    )
+
     class Meta:
         ordering = ["-created_at"]
         indexes = [
@@ -172,6 +180,8 @@ class Order(models.Model):
     def _gen_order_number(self) -> str:
         now = timezone.now()
         return f"RP{now:%Y%m%d}{uuid.uuid4().hex[:6].upper()}"
+
+    
 
     def save(self, *args, **kwargs):
         if not self.order_number:
@@ -213,6 +223,12 @@ class Order(models.Model):
         if hasattr(self, "payments"):
             return self.payments.exists()
         return self.payment_set.exists()
+
+    @property
+    def last_payment(self):
+        """Devuelve el pago más reciente o None."""
+        return self.payments.order_by("-paid_at").first()
+
 
 
 

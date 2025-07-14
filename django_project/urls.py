@@ -15,12 +15,13 @@ from django.db.models import Avg
 # ---------------------------------------------------------------------------
 # Vistas de nivel proyecto
 # ---------------------------------------------------------------------------
+
 def home_view(request):
     """Página de inicio; si el usuario ya inició sesión lo redirige a su dashboard."""
     if request.user.is_authenticated:
         return redirect("dashboard")
     return render(request, "landing/index.html")
-from django.db.models import Avg            # ⬅️  nuevo import
+
 
 @login_required
 def dashboard_view(request):
@@ -36,20 +37,20 @@ def dashboard_view(request):
         from apps.users.models import User
         from apps.vehicles.models import Vehicle
 
-        total_orders   = Order.objects.count()
+        total_orders = Order.objects.count()
         pending_orders = Order.objects.filter(status="pending").count()
-        total_clients  = User.objects.filter(user_type="client").count()
-        active_vehicles= Vehicle.objects.filter(status="active").count()
+        total_clients = User.objects.filter(user_type="client").count()
+        active_vehicles = Vehicle.objects.filter(status="active").count()
 
         context.update(
-            total_orders   = total_orders,
-            pending_orders = pending_orders,
-            total_clients  = total_clients,
-            active_vehicles= active_vehicles,
+            total_orders=total_orders,
+            pending_orders=pending_orders,
+            total_clients=total_clients,
+            active_vehicles=active_vehicles,
             cards=[
-                {"title": "Órdenes totales",   "content": total_orders},
-                {"title": "Pendientes",        "content": pending_orders},
-                {"title": "Clientes",          "content": total_clients},
+                {"title": "Órdenes totales", "content": total_orders},
+                {"title": "Pendientes", "content": pending_orders},
+                {"title": "Clientes", "content": total_clients},
                 {"title": "Vehículos activos", "content": active_vehicles},
             ],
         )
@@ -57,29 +58,27 @@ def dashboard_view(request):
 
     # --- Panel OPERADOR ---------------------------------------------------
     elif user_type == "operator":
-        assigned_orders  = Order.objects.filter(operator=user).count()
-        today_deliveries = (
-            Order.objects.filter(
-                operator=user,
-                delivery_date=timezone.localdate()
-            ).count()
-        )
+        assigned_orders = Order.objects.filter(operator=user).count()
+        today_deliveries = Order.objects.filter(
+            operator=user, delivery_date=timezone.localdate()
+        ).count()
 
-        # 👇  NUEVO: promedio de calificaciones
+        # Promedio de calificaciones
         avg = (
-            Order.objects.filter(operator=user, rating__isnull=False)
-            .aggregate(prom=Avg("rating__rating"))
+            Order.objects.filter(operator=user, rating__isnull=False).aggregate(
+                prom=Avg("rating__rating")
+            )
         )["prom"] or 0
-        avg_rating = round(avg, 2)           # 4.33 → 4.33
+        avg_rating = round(avg, 2)
 
         context.update(
-            assigned_orders = assigned_orders,
-            today_deliveries= today_deliveries,
-            avg_rating      = avg_rating,     # 👈  disponible en la plantilla
+            assigned_orders=assigned_orders,
+            today_deliveries=today_deliveries,
+            avg_rating=avg_rating,
             cards=[
                 {"title": "Órdenes asignadas", "content": assigned_orders},
-                {"title": "Entregas hoy",      "content": today_deliveries},
-                {"title": "Promedio ⭐",        "content": avg_rating},
+                {"title": "Entregas hoy", "content": today_deliveries},
+                {"title": "Promedio ⭐", "content": avg_rating},
             ],
         )
         template = "dashboard/operator_dashboard.html"
@@ -87,25 +86,24 @@ def dashboard_view(request):
     # --- Panel CLIENTE ----------------------------------------------------
     else:
         my_orders_count = Order.objects.filter(client=user).count()
-        pending_orders  = Order.objects.filter(client=user, status="pending").count()
-        last_orders     = (
-            Order.objects.filter(client=user)
-            .order_by("-created_at")[:3]
-        )
+        pending_orders = Order.objects.filter(client=user, status="pending").count()
+        last_orders = Order.objects.filter(client=user).order_by("-created_at")[:3]
 
         context.update(
-            my_orders      = my_orders_count,
-            pending_orders = pending_orders,
-            last_orders    = last_orders,
+            my_orders=my_orders_count,
+            pending_orders=pending_orders,
+            last_orders=last_orders,
             cards=[
                 {"title": "Mis pedidos", "content": my_orders_count},
-                {"title": "Pendientes",  "content": pending_orders},
+                {"title": "Pendientes", "content": pending_orders},
             ],
         )
         template = "dashboard/client_dashboard.html"
 
     return render(request, template, context)
 
+
+# ---------------------------------------------------------------------------
 # URL patterns
 # ---------------------------------------------------------------------------
 urlpatterns = [
@@ -120,30 +118,23 @@ urlpatterns = [
     path("auth/", include("apps.users.urls")),
 
     # Apps de dominio
-    path("orders/",   include("apps.orders.urls")),
-    # 👉 nuevo include explícito con namespace
+    path("orders/", include("apps.orders.urls")),
     path(
         "orders/operator/",
         include(("apps.orders.urls_operator", "orders_operator"), namespace="orders_operator"),
     ),
 
-    
     path("vehicles/", include("apps.vehicles.urls")),
-    path(
-        "payments/",
-        include(("apps.orders.urls_payments", "payments"), namespace="payments"),
-    ),
-
+    path("payments/", include("apps.payments.urls")),  # ← única inclusión de pagos
 
     # API (futuras integraciones)
     path("api/v1/", include("apps.core.api_urls")),
     # path("api-auth/", include("rest_framework.urls")),  # Descomenta si usas DRF
     path("messages/", include(("apps.messages.urls", "messages"), namespace="messages")),
-     
 ]
 
 # ---------------------------------------------------------------------------
-# ⬇️  BLOQUE DEMO — solo para previsualizar el Operator Dashboard
+# BLOQUE DEMO — solo para previsualizar el Operator Dashboard
 # ---------------------------------------------------------------------------
 urlpatterns += [
     path(
@@ -152,18 +143,15 @@ urlpatterns += [
             template_name="dashboard/operator_dashboard.html",
             extra_context={
                 "cards": [
-                    {"title": "Órdenes activas",    "content": 12},
-                    {"title": "Entregas hoy",       "content": 5},
-                    {"title": "Pipas disponibles",  "content": 3},
+                    {"title": "Órdenes activas", "content": 12},
+                    {"title": "Entregas hoy", "content": 5},
+                    {"title": "Pipas disponibles", "content": 3},
                 ]
             },
         ),
         name="demo-operator",
     ),
 ]
-# ---------------------------------------------------------------------------
-# ⬆️  FIN BLOQUE DEMO
-# ---------------------------------------------------------------------------
 
 # Archivos estáticos y media en desarrollo
 if settings.DEBUG:
@@ -172,5 +160,5 @@ if settings.DEBUG:
 
 # Personalización del sitio admin
 admin.site.site_header = "Rey Pipas - Administración"
-admin.site.site_title  = "Rey Pipas Admin"
+admin.site.site_title = "Rey Pipas Admin"
 admin.site.index_title = "Panel de Administración"

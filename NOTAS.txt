@@ -302,3 +302,31 @@ Commit aplicado en views_operator.py (fecha 2025‑07‑10).
      - ModelAdmin sin delete
      - branding CSS ligero
 • Warnings menores documentados; indices y STATICFILES_STORAGE quedan como TODO Q4.
+
+
+Se añadió price a Order (Decimal 10,2 – default 0). No hace falta carpeta config; la migración corre normal.
+
+
+[WARN] 11-Jul-2025 – Warnings menores en runserver:
+• Deprecation: STATICFILES_STORAGE → STORAGES
+• UserWarning: No directory at STATIC_ROOT
+Sin impacto en tests ni migraciones. Pendiente de limpieza al preparar entorno de producción.
+
+
+
+
+- order_detail.html actualizado: usa order.is_paid y payment_form.
+- Se eliminaron referencias obsoletas a order.payment y form.
+
+
+- order_detail.html actualizado: order.is_paid / payment_form.
+- apps/payments/urls.py limpiado y conectado.
+- Vista OperatorRegisterPaymentView única en views_operator.py.
+- Tests y prueba manual: OK (formulario visible, pago registrado).
+
+
+- Métodos de pago ampliados (efectivo, transferencia, OXXO).
+- PaymentForm actualizado; elección validada en modelo.
+- order.last_payment helper + prefetch en historial.
+- order_detail.html e orders_history.html muestran monto y método.
+- Migración payments 000X creada y aplicada.

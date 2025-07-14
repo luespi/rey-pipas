@@ -1,3 +1,5 @@
+
+
 {# -------------------------------------------------------------------------- #}
 {# Archivo : templates/operator/orders_history.html #}
 {# Ubicación:  <raíz del proyecto>/templates/operator/orders_history.html #}
@@ -14,7 +16,13 @@
       Historial de entregas
     </h1>
 
-    <div class="w-full overflow-x-auto rounded-lg shadow ring-1 ring-gray-200">
+      <div class="w-full overflow-x-auto rounded-lg shadow ring-1 ring-brand">
+
+
+
+
+
+      
       <table class="min-w-full text-sm text-gray-800">
         <thead class="bg-gray-50 sticky top-0 z-10">
           <tr class="divide-x divide-gray-200 text-left uppercase tracking-wider
@@ -24,15 +32,25 @@
             <th class="py-3 px-4 whitespace-nowrap">Fecha&nbsp;entrega</th>
             <th class="py-3 px-4">Litros</th>
             <th class="py-3 px-4">Zona</th>
+            
+            <th class="py-3 px-4 text-right">Monto</th>
+            <th class="py-3 px-4">Método</th>
+            
             <th class="py-3 px-4">Pago</th>
             <th class="py-3 px-4">Calif.</th>
+
+            
+
           </tr>
         </thead>
 
         <tbody class="divide-y divide-gray-100">
           {% for order in orders %}
             <tr class="odd:bg-white even:bg-gray-50 hover:bg-gray-100 transition">
-              <td class="py-3 px-4 font-mono text-[13px]">{{ order.order_number }}</td>
+              <td class="py-3 px-4 font-mono text-[13px]"><a href="{% url 'orders_operator:order-detail' order.id %}" 
+   class="font-mono text-sm text-brand hover:text-brand-dark hover:underline">
+   #{{ order.order_number }}
+</a></td>
               <td class="py-3 px-4">
                 {{ order.client.get_full_name|default:order.client.username }}
               </td>
@@ -41,6 +59,25 @@
               </td>
               <td class="py-3 px-4 text-right">{{ order.quantity_liters }}</td>
               <td class="py-3 px-4">{{ order.get_zone_display }}</td>
+
+
+              <td class="py-3 px-4 text-right">
+                {% if order.is_paid %}
+                    ${{ order.last_payment.amount }}
+                {% else %}
+                    —
+                {% endif %}
+              </td>
+              <td class="py-3 px-4">
+                {% if order.is_paid %}
+                    {{ order.last_payment.get_method_display }}
+                {% else %}
+                    —
+                {% endif %}
+              </td>
+
+
+              
 
               <td class="py-3 px-4">
                 {% if order.is_paid %}
@@ -76,11 +113,18 @@
             </tr>
           {% empty %}
             <tr>
-              <td colspan="7" class="py-10 text-center text-gray-500">
+              <td colspan="9" class="py-10 text-center text-gray-500">
                 No hay entregas registradas todavía.
               </td>
             </tr>
           {% endfor %}
+
+
+
+
+
+
+          
         </tbody>
       </table>
     </div>

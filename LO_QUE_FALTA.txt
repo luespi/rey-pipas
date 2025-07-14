@@ -2,10 +2,8 @@ Cuando edito mi perfil para poner los datos que faltan, todos los que son de fec
 
 Por otro lado, sería bueno que cuando vea mi perfil, se vea el perfil extendido.
 
+Mis datos como chofer, o sea, cuando me meto como chofer al sistema, no aparecen en la parte principal del perfil, o sea, cuando nada más le des clic en perfil, no te aparecen los pedidos, te aparece todo en cero, aunque tenga varios pedidos.
 
-A ver, tenemos que hacer que cada listado del chofer tenga el link en el número del pedido para que al hacerle clic nos muestre todo el detalle absolutamente completo del pedido pues para poderlo aceptar.
-
-Tenemos que hacer que en el historial de entregas del chofer, este, la línea externa que está de color como azul, hay que ponerlo del color de la empresa. Nada más con ese cambio está bien, lo demás es aceptable, se ve bien.
 
 Tenemos que hacer que se pueda, donde voy a registrar el pago, pues que se registre el pago, no sé cómo, pero pues que se registre el pago, que el chofer registre ese pago, y de alguna manera ese registro de que ya se pagó, se vea reflejado inmediatamente también en el listado del cliente.
 

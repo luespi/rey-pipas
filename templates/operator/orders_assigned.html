@@ -43,16 +43,26 @@
       </thead>
 
       <tbody class="bg-white divide-y divide-gray-200">
-        {% for o in orders %}
-        <tr>
-          <td class="px-4 py-3 font-mono">{{ o.order_number }}</td>
-          <td class="px-4 py-3">{{ o.client.get_full_name }}</td>
-          <td class="px-4 py-3 text-right">{{ o.quantity_liters }}</td>
-          <td class="px-4 py-3">{{ o.get_status_display }}</td>
+      {% for o in orders %}
+        <tr class="hover:bg-brand/90 group">     {# <- 1. añadimos “group” #}
 
-          <td class="px-4 py-3">
-            <a href="{% url 'messages:order_chat' o.pk %}" class="text-blue-600 hover:underline">Chat</a>
+          <td class="px-4 py-3 font-mono">
+            <a href="{% url 'orders_operator:order-detail' o.id %}"
+               class="text-brand                      {# color normal #}
+                      group-hover:text-white          {# color al pasar sobre la fila #}
+                      group-hover:underline
+                      transition">
+              #{{ o.order_number }}
+            </a>
           </td>
+            <td class="px-4 py-3">{{ o.client.get_full_name }}</td>
+            <td class="px-4 py-3 text-right">{{ o.quantity_liters }}</td>
+            <td class="px-4 py-3">{{ o.get_status_display }}</td>
+
+            <td class="px-4 py-3">
+              <a href="{% url 'messages:order_chat' o.pk %}"
+                 class="text-blue-600 hover:underline">Chat</a>
+            </td>
 
           <td class="px-4 py-3 text-center">
             {% if o.status == "assigned" %}

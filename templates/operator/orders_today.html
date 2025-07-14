@@ -29,23 +29,40 @@
       <tbody class="bg-white divide-y divide-gray-200">
         {% for o in orders %}
         <tr>
-          <td class="px-4 py-3 font-mono">{{ o.order_number }}</td>
+
+          
+          
+          <!-- enlace al detalle -->
+          <td class="px-4 py-3 font-mono">
+            <a href="{% url 'orders_operator:order-detail' o.id %}"
+               class="font-mono text-sm text-brand hover:text-white hover:underline">
+              #{{ o.order_number }}
+            </a>
+          </td>
+
           <td class="px-4 py-3">{{ o.client.get_full_name }}</td>
           <td class="px-4 py-3 text-right">{{ o.quantity_liters }}</td>
           <td class="px-4 py-3">{{ o.get_status_display }}</td>
+
+          <!-- acciones -->
           <td class="px-4 py-3">
             {% if o.status == "assigned" %}
               <form method="post" action="{% url 'orders_operator:deliver' o.pk %}">
                 {% csrf_token %}
-                <button class="btn-deliver px-3 py-1 rounded-full shadow">
-                  Marcar entregado
-                </button>
+                <button type="submit" class="btn btn-brand">Marcar entregado</button>
               </form>
-            {% else %} — {% endif %}
+            {% elif o.status == "delivered" %}
+              <span class="text-green-600 font-semibold">Entregado</span>
+            {% endif %}
           </td>
         </tr>
+        {% empty %}
+          <tr>
+            <td colspan="5" class="p-6 text-center text-gray-500">Sin pedidos para hoy</td>
+          </tr>
         {% endfor %}
       </tbody>
+
     </table>
   </div>
   {% else %}

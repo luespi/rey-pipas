@@ -20,7 +20,7 @@ hidden = [".pythonlibs"]
 
 [nix]
 channel = "stable-24_05"
-packages = ["freetype", "lcms2", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "openjpeg", "tailwindcss", "tcl", "tk", "tree", "zlib"]
+packages = ["freetype", "lcms2", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "mailutils", "openjpeg", "tailwindcss", "tcl", "tk", "tree", "zlib"]
 
 [unitTest]
 language = "python3"

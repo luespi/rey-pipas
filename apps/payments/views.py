@@ -37,3 +37,52 @@ class PaymentListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         return Payment.objects.filter(order__client=self.request.user)
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils import timezone
+from django.views import View
+
+from apps.orders.models import Order
+from .models import Payment
+from .forms import PaymentForm
+
+
+
+
+
+
+#comentada
+"""
+
+#class #OperatorRegisterPaymentView#(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        order = get_object_or_404(Order, pk=pk)
+
+        # Seguridad: si NO está entregado, regresa al detalle
+        if order.status != "delivered":
+            return redirect("orders_operator:order-detail", pk=pk)
+
+        form = PaymentForm(request.POST)
+        if form.is_valid():
+            Payment.objects.update_or_create(
+                order=order,
+                defaults={
+                    "amount": form.cleaned_data["amount"],
+                    "method": form.cleaned_data["method"],
+                    "paid_at": timezone.now(),
+                },
+            )
+
+        # Redirección final al mismo detalle
+        return redirect("orders_operator:order-detail", pk=pk)
+
+
+
+
+"""
+
+
+
+
+
+

@@ -59,9 +59,9 @@
         {% for order in orders %}
         <tr>
           <td class="px-4 py-3 font-mono">
-            <a href="{% url 'orders_operator:detail' order.pk %}"
-               class="underline hover:text-brand">
-               {{ order.order_number }}
+            <a href="{% url 'orders_operator:order-detail' order.id %}" 
+               class="font-mono text-sm text-brand hover:text-brand-dark hover:underline">
+               #{{ order.order_number }}
             </a>
           </td>
 
