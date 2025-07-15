@@ -1,14 +1,18 @@
 # apps/orders/admin.py
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Order, OrderStatusHistory, OrderRating
 
+from .models import (
+    Order,
+    OrderStatusHistory,
+    OrderRating,
+)
 
-# ----------  INLINES  ------------------------------------------------------
+# ────────────────────────────────────────────────────────────────────────────
+#  INLINES
+# ────────────────────────────────────────────────────────────────────────────
 class OrderStatusHistoryInline(admin.TabularInline):
-    """
-    Muestra el historial de cambios de estado directamente dentro de la orden.
-    """
+    """Historial de cambios de estado dentro de la orden."""
     model = OrderStatusHistory
     extra = 0
     fields = ("timestamp", "previous_status", "new_status", "changed_by", "notes")
@@ -17,28 +21,20 @@ class OrderStatusHistoryInline(admin.TabularInline):
 
 
 class OrderRatingInline(admin.StackedInline):
-    """
-    Permite ver o editar la calificación del cliente.
-    """
+    """Calificación del cliente."""
     model = OrderRating
     extra = 0
     max_num = 1
 
 
-# ----------  ADMIN PRINCIPAL  ---------------------------------------------
-
-# apps/orders/admin.py
-from django.contrib import admin
-from django.utils.html import format_html
-from .models import Order
-#from .inlines import OrderStatusHistoryInline, OrderRatingInline
-
-
+# ────────────────────────────────────────────────────────────────────────────
+#  ADMIN PRINCIPAL
+# ────────────────────────────────────────────────────────────────────────────
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     """
     Configuración del modelo Order en el sitio de administración.
-    Incluye zona y colonia para facilitar la supervisión logística.
+    Ahora usa el campo «unidad» en lugar de «vehicle».
     """
 
     # --- Tabla principal ---
@@ -46,7 +42,8 @@ class OrderAdmin(admin.ModelAdmin):
         "order_number",
         "client",
         "operator",
-        "zone_label",          # ← NUEVO
+        "unidad",              # ← NUEVO  (muestra la FK)
+        "zone_label",
         "status_colored",
         "priority",
         "quantity_liters",
@@ -59,7 +56,6 @@ class OrderAdmin(admin.ModelAdmin):
     zone_label.short_description = "Zona"
     zone_label.admin_order_field = "zone"
 
-    # icono de color para el status
     def status_colored(self, obj):
         color = {
             "pending":    "gray",
@@ -79,7 +75,7 @@ class OrderAdmin(admin.ModelAdmin):
 
     # --- Filtros laterales ---
     list_filter = (
-        "zone",                # ← NUEVO
+        "zone",
         "status",
         "priority",
         "delivery_date",
@@ -91,8 +87,9 @@ class OrderAdmin(admin.ModelAdmin):
         "order_number",
         "client__username",
         "operator__username",
+        "unidad__numero_placas",
         "delivery_address",
-        "colonia",            # ← NUEVO
+        "colonia",
     )
 
     # --- Vista detallada ---
@@ -101,11 +98,11 @@ class OrderAdmin(admin.ModelAdmin):
             "fields": ("order_number", "status", "priority")
         }),
         ("Relaciones", {
-            "fields": ("client", "operator", "vehicle")
+            "fields": ("client", "operator", "unidad")   # ← 'unidad' sustituye a 'vehicle'
         }),
         ("Detalle de entrega", {
             "fields": (
-                ("zone", "colonia"),           # ← NUEVO
+                ("zone", "colonia"),
                 ("quantity_liters", "estimated_cost"),
                 "delivery_address",
                 ("delivery_date", "delivery_time_preference"),
@@ -122,14 +119,16 @@ class OrderAdmin(admin.ModelAdmin):
         }),
     )
 
-    readonly_fields       = ("estimated_cost", "created_at", "updated_at")
-    autocomplete_fields   = ("client", "operator", "vehicle")
-    date_hierarchy        = "delivery_date"
-    ordering              = ("-created_at",)
-    inlines               = [OrderStatusHistoryInline, OrderRatingInline]
+    readonly_fields     = ("estimated_cost", "created_at", "updated_at")
+    autocomplete_fields = ("client", "operator", "unidad")  # ← actualizado
+    date_hierarchy      = "delivery_date"
+    ordering            = ("-created_at",)
+    inlines             = [OrderStatusHistoryInline, OrderRatingInline]
 
 
-# ----------  MODELOS RELACIONADOS (stand-alone)  ---------------------------
+# ────────────────────────────────────────────────────────────────────────────
+#  MODELOS RELACIONADOS
+# ────────────────────────────────────────────────────────────────────────────
 @admin.register(OrderStatusHistory)
 class OrderStatusHistoryAdmin(admin.ModelAdmin):
     list_display  = ("order", "previous_status", "new_status", "timestamp", "changed_by")
@@ -137,13 +136,10 @@ class OrderStatusHistoryAdmin(admin.ModelAdmin):
     search_fields = ("order__order_number", "changed_by__username")
     readonly_fields = ("timestamp",)
 
+
 @admin.register(OrderRating)
 class OrderRatingAdmin(admin.ModelAdmin):
     list_display  = ("order", "rating", "created_at")
     list_filter   = ("rating", "created_at")
     search_fields = ("order__order_number",)
     readonly_fields = ("created_at",)
-
-
-
-
