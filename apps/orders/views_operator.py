@@ -21,7 +21,7 @@ from django.views.generic import (
 from apps.messages.models import Thread
 from apps.payments.forms import PaymentForm
 from apps.payments.models import Payment
-from apps.vehicles.models import Vehicle
+from apps.unidades.models import Unidad
 
 from .models import (
     Order,
@@ -116,12 +116,113 @@ class OperatorTodayListView(LoginRequiredMixin, OperatorRequiredMixin, ListView)
 # --------------------------------------------------------------------------- #
 #  4. Aceptar pedido
 # --------------------------------------------------------------------------- #
+
+
+
+# apps/orders/views_operator.py
+# --------------------------------------------------------------------------- #
+#  Esta sección reemplaza/completa la vista “Aceptar pedido”. Incluye:
+#    1) Código FUNCIONAL para la versión piloto (1 pipa ↔ 1 chofer).
+#    2) Un bloque de documentación y ejemplos de código dentro de triple comillas
+#       para que, si el cliente pide escenarios más complejos, sepas exactamente
+#       qué piezas tocar y cómo cobrar por cada extra.
+# --------------------------------------------------------------------------- #
+
+"""
+─────────────────────────────────────────────────────────────────────────────
+DOCUMENTACIÓN • POR QUÉ ESTE DISEÑO Y CÓMO ESCALA
+─────────────────────────────────────────────────────────────────────────────
+✅ Hoy (piloto): cada operador tiene 0‑o‑1 Unidad activa
+   •  Campo en Unidad → assigned_operator
+   •  Campo en Unidad → status (active / inactive)
+   •  La vista toma la primera Unidad activa del operador y la asigna al pedido.
+
+🚀 Escenarios que ya están cubiertos / se activan con poco código
+─────────────────────────────────────────────────────────────────────────────
+1) **Pipa fija por chofer (actual)**
+   – Sin cambios.
+
+2) **Dueño con varias pipas y varios choferes**
+   – Basta con registrar más de una Unidad con el mismo `assigned_operator`.
+   – Crear en la UI un <select> para que el operador elija qué unidad usar.
+
+   Ejemplo:
+   >>> unidades = Unidad.objects.filter(
+   ...     assigned_operator=request.user,
+   ...     status="active",
+   ... )
+
+3) **Rotación automática de unidades entre choferes**
+   – Añadir campo `last_used_at` a Unidad.
+   – Ordenar por ese campo para hacer round‑robin.
+
+   # --- ejemplo rotación ---
+   unidad = (
+       Unidad.objects
+       .filter(assigned_operator=request.user, status="active")
+       .order_by("last_used_at")
+       .first()
+   )
+   if unidad:
+       unidad.last_used_at = timezone.now()
+       unidad.save(update_fields=["last_used_at"])
+   # -------------------------
+
+4) **Dueño / FleetManager que decide unidad y chofer manualmente**
+   – Crear rol “FleetManager” (Group o User flag).
+   – Extender esta vista para aceptar operator_id y unidad_id por POST,
+     validando permisos antes de asignar.
+
+5) **Servicio premium: modos de asignación (fijo / rotación / manual)**
+   – Crear modelo ConfigFleet con campo `assignment_mode`.
+   – Función polimórfica:
+        def get_unidad_para(order, operator): ...
+   – Esta vista solo llama a esa función ⇒ sin tocar la lógica interna.
+
+VENTAJAS DEL DISEÑO INTERMEDIO
+──────────────────────────────
+* Entrega rápida: 2 campos nuevos, 1 migración.
+* Escala sin migraciones extra (1→N unidades).
+* Permite desactivar unidades sin borrar histórico (status).
+* Deja el historial limpio para auditoría / reportes.
+
+Todo lo anterior es **comentario**; se ignora al ejecutar la app,
+pero queda a mano para futuras decisiones y cotizaciones.
+─────────────────────────────────────────────────────────────────────────────
+"""
+
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.db import transaction
+from django.shortcuts import redirect
+from django.urls import reverse_lazy
+from django.utils import timezone
+from django.views import View
+
+from apps.messages.models import Thread
+from apps.unidades.models import Unidad          # ← Nuevo modelo
+from .models import Order
+
+
+# --------------------------------------------------------------------------- #
+#  Mixins
+# --------------------------------------------------------------------------- #
+class OperatorRequiredMixin(UserPassesTestMixin):
+    """Restringe las vistas a usuarios con rol «operator»."""
+    def test_func(self) -> bool:
+        return getattr(self.request.user, "is_operator", False)
+
+
+# --------------------------------------------------------------------------- #
+#  4. Aceptar pedido
+# --------------------------------------------------------------------------- #
 class OperatorAcceptOrderView(LoginRequiredMixin, OperatorRequiredMixin, View):
     """El operador toma un pedido pendiente."""
     success_url = reverse_lazy("orders_operator:assigned")
 
     def post(self, request, pk):
         with transaction.atomic():
+            # 1) Bloquear y validar el pedido
             order = (
                 Order.objects
                 .select_for_update()
@@ -132,25 +233,37 @@ class OperatorAcceptOrderView(LoginRequiredMixin, OperatorRequiredMixin, View):
                 messages.error(request, "Otro operador ya tomó este pedido.")
                 return redirect("orders_operator:pending")
 
-            # Asignar pipa (opcional)
-            vehicle = (
-                Vehicle.objects
+            # 2) Buscar la Unidad activa del operador
+            unidad = (
+                Unidad.objects
                 .filter(assigned_operator=request.user, status="active")
                 .first()
             )
-            if vehicle:
-                order.vehicle = vehicle
+            if unidad:
+                order.unidad = unidad          # ⚠️ Usa order.vehicle si aún no renombraste el FK
 
+            # 3) Asignar el pedido
             order.operator = request.user
             order.status = "assigned"
             order.assigned_at = timezone.now()
             order.save()
 
-            # Crear hilo de mensajes si no existía
+            # 4) Crear hilo de mensajes (si no existe)
             Thread.objects.get_or_create(order=order)
 
         messages.success(request, f"Pedido {order.order_number} asignado correctamente.")
         return redirect(self.success_url)
+
+
+
+
+
+
+
+
+
+
+
 
 
 # --------------------------------------------------------------------------- #

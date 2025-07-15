@@ -1,7 +1,6 @@
-"""
-URLs principales para Rey Pipas
-Configuración de rutas del sistema  (sin carpeta config)
-"""
+# django_project/urls.py
+# URLs principales para Rey Pipas  (sin carpeta “config”)
+
 from django.utils import timezone
 from django.contrib import admin
 from django.urls import path, include
@@ -30,44 +29,44 @@ def dashboard_view(request):
     user_type = getattr(user, "user_type", "client")
     context = {"user": user, "user_type": user_type}
 
-    from apps.orders.models import Order
+    from apps.orders.models import Order          # se mantiene igual
 
     # --- Panel ADMIN ------------------------------------------------------
     if user_type == "admin":
         from apps.users.models import User
-        from apps.vehicles.models import Vehicle
+        from apps.unidades.models import Unidad   # ← nueva importación
 
-        total_orders = Order.objects.count()
-        pending_orders = Order.objects.filter(status="pending").count()
-        total_clients = User.objects.filter(user_type="client").count()
-        active_vehicles = Vehicle.objects.filter(status="active").count()
+        total_orders      = Order.objects.count()
+        pending_orders    = Order.objects.filter(status="pending").count()
+        total_clients     = User.objects.filter(user_type="client").count()
+        total_unidades    = Unidad.objects.count()          # ← sin campo “status”
 
         context.update(
             total_orders=total_orders,
             pending_orders=pending_orders,
             total_clients=total_clients,
-            active_vehicles=active_vehicles,
+            total_unidades=total_unidades,       # llave que puedes usar en plantillas
             cards=[
-                {"title": "Órdenes totales", "content": total_orders},
-                {"title": "Pendientes", "content": pending_orders},
-                {"title": "Clientes", "content": total_clients},
-                {"title": "Vehículos activos", "content": active_vehicles},
+                {"title": "Órdenes totales",      "content": total_orders},
+                {"title": "Pendientes",           "content": pending_orders},
+                {"title": "Clientes",             "content": total_clients},
+                {"title": "Unidades registradas", "content": total_unidades},
             ],
         )
         template = "dashboard/admin_dashboard.html"
 
     # --- Panel OPERADOR ---------------------------------------------------
     elif user_type == "operator":
-        assigned_orders = Order.objects.filter(operator=user).count()
+        assigned_orders  = Order.objects.filter(operator=user).count()
         today_deliveries = Order.objects.filter(
-            operator=user, delivery_date=timezone.localdate()
+            operator=user,
+            delivery_date=timezone.localdate()
         ).count()
 
-        # Promedio de calificaciones
         avg = (
-            Order.objects.filter(operator=user, rating__isnull=False).aggregate(
-                prom=Avg("rating__rating")
-            )
+            Order.objects
+                 .filter(operator=user, rating__isnull=False)
+                 .aggregate(prom=Avg("rating__rating"))
         )["prom"] or 0
         avg_rating = round(avg, 2)
 
@@ -77,8 +76,8 @@ def dashboard_view(request):
             avg_rating=avg_rating,
             cards=[
                 {"title": "Órdenes asignadas", "content": assigned_orders},
-                {"title": "Entregas hoy", "content": today_deliveries},
-                {"title": "Promedio ⭐", "content": avg_rating},
+                {"title": "Entregas hoy",      "content": today_deliveries},
+                {"title": "Promedio ⭐",        "content": avg_rating},
             ],
         )
         template = "dashboard/operator_dashboard.html"
@@ -86,8 +85,8 @@ def dashboard_view(request):
     # --- Panel CLIENTE ----------------------------------------------------
     else:
         my_orders_count = Order.objects.filter(client=user).count()
-        pending_orders = Order.objects.filter(client=user, status="pending").count()
-        last_orders = Order.objects.filter(client=user).order_by("-created_at")[:3]
+        pending_orders  = Order.objects.filter(client=user, status="pending").count()
+        last_orders     = Order.objects.filter(client=user).order_by("-created_at")[:3]
 
         context.update(
             my_orders=my_orders_count,
@@ -95,7 +94,7 @@ def dashboard_view(request):
             last_orders=last_orders,
             cards=[
                 {"title": "Mis pedidos", "content": my_orders_count},
-                {"title": "Pendientes", "content": pending_orders},
+                {"title": "Pendientes",  "content": pending_orders},
             ],
         )
         template = "dashboard/client_dashboard.html"
@@ -111,7 +110,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
 
     # Páginas principales
-    path("", home_view, name="home"),
+    path("",           home_view,      name="home"),
     path("dashboard/", dashboard_view, name="dashboard"),
 
     # Autenticación
@@ -124,8 +123,10 @@ urlpatterns = [
         include(("apps.orders.urls_operator", "orders_operator"), namespace="orders_operator"),
     ),
 
-    path("vehicles/", include("apps.vehicles.urls")),
-    path("payments/", include("apps.payments.urls")),  # ← única inclusión de pagos
+    # Nueva app de unidades (reemplaza a vehicles)
+    path("unidades/", include("apps.unidades.urls")),
+
+    path("payments/", include("apps.payments.urls")),   # única inclusión de pagos
 
     # API (futuras integraciones)
     path("api/v1/", include("apps.core.api_urls")),
@@ -143,8 +144,8 @@ urlpatterns += [
             template_name="dashboard/operator_dashboard.html",
             extra_context={
                 "cards": [
-                    {"title": "Órdenes activas", "content": 12},
-                    {"title": "Entregas hoy", "content": 5},
+                    {"title": "Órdenes activas",   "content": 12},
+                    {"title": "Entregas hoy",      "content": 5},
                     {"title": "Pipas disponibles", "content": 3},
                 ]
             },
@@ -155,10 +156,10 @@ urlpatterns += [
 
 # Archivos estáticos y media en desarrollo
 if settings.DEBUG:
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL,  document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL,   document_root=settings.MEDIA_ROOT)
 
 # Personalización del sitio admin
-admin.site.site_header = "Rey Pipas - Administración"
-admin.site.site_title = "Rey Pipas Admin"
-admin.site.index_title = "Panel de Administración"
+admin.site.site_header  = "Rey Pipas - Administración"
+admin.site.site_title   = "Rey Pipas Admin"
+admin.site.index_title  = "Panel de Administración"

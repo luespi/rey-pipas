@@ -62,7 +62,7 @@ INSTALLED_APPS = [
     "apps.payments",
     "apps.core",
     "apps.messages",        # ← con el prefijo apps.
-
+    "apps.unidades",
 
      "widget_tweaks",
 ]
