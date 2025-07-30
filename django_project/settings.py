@@ -239,3 +239,7 @@ CSRF_TRUSTED_ORIGINS = [
     "https://5465ca6d-2ff9-4996-b6a9-deb05bd925a8-00-tk2w8rsj0cib.kirk.replit.dev"
 ]
 
+CSRF_COOKIE_SAMESITE = 'None'
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SECURE = True
