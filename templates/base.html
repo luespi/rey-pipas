@@ -35,6 +35,26 @@
       <!-- desktop menu -->
   <!-- desktop menu -->
   <ul class="hidden lg:flex items-center gap-6 text-sm font-semibold">
+
+    {% if unread_messages_count > 0 %}
+      <li>
+        <a href="{% url 'messages:order_chat' unread_message_order_pk %}"
+           class="relative text-red-600 hover:text-red-700 transition">
+          <i class="fa fa-bell"></i>
+          <span class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+            {{ unread_messages_count }}
+          </span>
+        </a>
+      </li>
+    {% else %}
+      <li>
+        <a href="#" class="text-gray-400 cursor-default">
+          <i class="fa fa-bell-o"></i>
+        </a>
+      </li>
+    {% endif %}
+
+
     <li><a href="/dashboard/" class="text-gray-900 hover:text-brand transition">Dashboard</a></li>
     {# ---------------- CLIENTE ---------------- #}
     {% if request.user.is_authenticated and request.user.user_type == 'client' %}
@@ -51,6 +71,21 @@
 
       <li><a href="{% url 'orders:orders_operator:assigned' %}"
              class="text-gray-900 hover:text-brand transition">Mis&nbsp;entregas</a></li>
+
+
+
+ 
+
+    <li><a href="{% url 'unidades:list' %}"
+       class="text-gray-900 hover:text-brand transition">Mis&nbsp;unidades</a></li>
+
+
+   
+
+    
+      
+    
+
 
       <!-- NUEVA línea -->
       <li><a href="{% url 'orders:orders_operator:history' %}"
@@ -71,6 +106,27 @@
 
   <!-- mobile dropdown -->
   <ul id="mobile-menu" class="lg:hidden absolute top-16 left-0 right-0 bg-white/95 backdrop-blur-xl shadow-lg divide-y divide-gray-200 text-base font-semibold py-4 hidden overflow-y-auto max-h-[calc(100vh-4rem)]">
+
+    {% if unread_messages_count > 0 %}
+      <li>
+        <a href="{% url 'messages:order_chat' unread_message_order_pk %}"
+           class="relative text-red-600 hover:text-red-700 transition">
+          <i class="fa fa-bell"></i>
+          <span class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+            {{ unread_messages_count }}
+          </span>
+        </a>
+      </li>
+    {% else %}
+      <li>
+        <a href="#" class="text-gray-400 cursor-default">
+          <i class="fa fa-bell-o"></i>
+        </a>
+      </li>
+    {% endif %}
+
+
+
     <li><a href="/dashboard/" class="block px-6 py-3 text-gray-900 hover:text-brand">Dashboard</a></li>
     {# ---------------- CLIENTE ---------------- #}
     {% if request.user.is_authenticated and request.user.user_type == 'client' %}

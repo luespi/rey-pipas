@@ -2,8 +2,10 @@
 {% block title %}Chat · Pedido #{{ order.order_number }}{% endblock %}
 
 {% block content %}
-<h3 class="text-xl font-semibold mt-6 mb-2">Chat</h3>
+<h3 class="text-xl font-semibold mt-6 mb-2 px-3 sm:px-4">Chat</h3>
 
 {% include "messages/_box.html"  with order=order %}
 {% include "messages/_form.html" with order=order %}
+
+
 {% endblock %}

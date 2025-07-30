@@ -10,7 +10,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
 from django.db.models import Avg
-
+from apps.users.views import dashboard_redirect
 # ---------------------------------------------------------------------------
 # Vistas de nivel proyecto
 # ---------------------------------------------------------------------------
@@ -111,7 +111,9 @@ urlpatterns = [
 
     # Páginas principales
     path("",           home_view,      name="home"),
-    path("dashboard/", dashboard_view, name="dashboard"),
+
+    
+    path("dashboard/", dashboard_redirect, name="dashboard"),
 
     # Autenticación
     path("auth/", include("apps.users.urls")),
@@ -124,7 +126,9 @@ urlpatterns = [
     ),
 
     # Nueva app de unidades (reemplaza a vehicles)
-    path("unidades/", include("apps.unidades.urls")),
+    
+    path("dashboard/unidades/", include("apps.unidades.urls", namespace="unidades")),
+
 
     path("payments/", include("apps.payments.urls")),   # única inclusión de pagos
 

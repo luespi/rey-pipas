@@ -51,8 +51,6 @@
         <p class="font-medium">{{ order.quantity_liters }} L</p>
       </div>
 
-
-
       <p><strong>Precio:</strong> ${{ order.price }}</p>
 
       {% if order.is_paid %}
@@ -71,10 +69,6 @@
         </form>
       {% endif %}
 
-
-
-      
-      
       <div>
         <p class="text-sm text-gray-500">Fecha de entrega</p>
         <p class="font-medium">{{ order.delivery_date }}</p>
@@ -107,6 +101,33 @@
       {% endif %}
     </div>
   </div>
+
+  <!-- ───── Unidad asignada ───── -->
+  {% if order.unidad %}
+  <div class="card p-6 mb-6">
+    <h2 class="text-xl font-semibold text-brand mb-4">Unidad asignada</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <p class="text-sm text-gray-500">Placas</p>
+        <p class="font-medium">{{ order.unidad.numero_placas }}</p>
+      </div>
+      <div>
+        <p class="text-sm text-gray-500">Capacidad</p>
+        <p class="font-medium">{{ order.unidad.capacidad_litros }} L</p>
+      </div>
+      <div class="md:col-span-2">
+        {% if order.unidad.foto_frontal %}
+          <img src="{{ order.unidad.foto_frontal.url }}"
+               alt="Unidad – foto frontal"
+               class="max-w-xs rounded shadow">
+        {% else %}
+          <p class="text-sm text-gray-500 italic">Sin fotografía frontal.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+  <!-- ───── Fin unidad asignada ───── -->
 
   <!-- ───── Calificación del cliente ───── -->
   {% if rating_value %}

@@ -2,7 +2,7 @@
 {% block title %}Chat del pedido #{{ order.folio }}{% endblock %}
 
 {% block content %}
-<h1 class="text-xl font-semibold mb-4">
+<h1 class="text-xl font-semibold mb-4 px-3 sm:px-4">
   Chat – pedido #{{ order.folio }}
 </h1>
 
@@ -24,7 +24,7 @@
             class="flex-1 border rounded-lg px-3 py-2 focus:ring-brand"></textarea>
   <button class="bg-brand text-white px-4 rounded-lg">Enviar</button>
 </form>
-
+</Br></Br></Br></Br></Br>
 <script>
 // --- refresco automático cada 5 s ---------------------------------
 async function refreshChat () {

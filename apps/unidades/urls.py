@@ -1,11 +1,16 @@
 # apps/unidades/urls.py
+
+
 from django.urls import path
-from . import views
+from .views import UnidadCreateView, UnidadListView
+from .views import UnidadUpdateView
 
 app_name = "unidades"
 
 urlpatterns = [
-    # Ejemplo: path("", views.UnidadListView.as_view(), name="list"),
+    path("", UnidadListView.as_view(), name="list"),
+    path("nueva/", UnidadCreateView.as_view(), name="create"),
+    path("<int:pk>/editar/", UnidadUpdateView.as_view(), name="update"),
 ]
 
 

@@ -1,2 +1,34 @@
-language = "python"
-run = "python3 manage.py migrate --noinput && python3 manage.py runserver 0.0.0.0:3000"
+# .replit
+run = """
+bash -c '
+echo "⚙️  Ejecutando tests…"
+if [ "$SKIP_TESTS" != "1" ]; then
+  pytest -q || exit 1
+else
+  echo "⏩  Tests saltados (SKIP_TESTS=1)"
+fi
+echo "✅ Tests OK — levantando servidor"
+python manage.py migrate --noinput
+python manage.py runserver 0.0.0.0:3000
+'
+"""
+
+entrypoint = "manage.py"
+modules = ["nodejs-20", "python-3.10:v18-20230807-322e88b"]
+
+hidden = [".pythonlibs"]
+
+[nix]
+channel = "stable-24_05"
+packages = ["freetype", "lcms2", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "openjpeg", "tailwindcss", "tcl", "tk", "tree", "zlib"]
+
+[unitTest]
+language = "python3"
+
+[deployment]
+run = ["python", "manage.py", "runserver", "0.0.0.0:3000"]
+deploymentTarget = "gce"
+
+[[ports]]
+localPort = 3000
+externalPort = 80

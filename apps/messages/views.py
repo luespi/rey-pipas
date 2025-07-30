@@ -9,7 +9,7 @@ from django.views.generic import TemplateView
 from apps.orders.models import Order
 from apps.messages.models import Thread, Message
 
-
+from django.utils.timezone import now
 
 
 
@@ -30,6 +30,8 @@ class OrderChatView(TemplateView):
             return ["messages/_list.html"]
         return ["messages/chat_page.html"]
 
+    from django.utils.timezone import now
+
     # ---------------------------------------------------------------------- #
     #                               dispatch                                 #
     # ---------------------------------------------------------------------- #
@@ -42,10 +44,22 @@ class OrderChatView(TemplateView):
             return HttpResponseForbidden("No autorizado")
 
         # 3. Garantizar que exista un Thread para la orden
-        Thread.objects.get_or_create(order=self.order)
+        thread, _ = Thread.objects.get_or_create(order=self.order)
+
+        # 4. Registrar última vista del chat según el tipo de usuario
+        if request.user == self.order.client:
+            thread.last_seen_client = now()
+            thread.save(update_fields=["last_seen_client"])
+        elif request.user == self.order.operator:
+            thread.last_seen_operator = now()
+            thread.save(update_fields=["last_seen_operator"])
 
         return super().dispatch(request, *args, **kwargs)
 
+
+
+
+    
     # ---------------------------------------------------------------------- #
     #                            get_context_data                            #
     # ---------------------------------------------------------------------- #

@@ -15,6 +15,10 @@ class Thread(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
+    # NUEVO
+    last_seen_client = models.DateTimeField(null=True, blank=True)
+    last_seen_operator = models.DateTimeField(null=True, blank=True)
+
     def __str__(self):
         return f"Chat pedido #{self.order.pk}"
 

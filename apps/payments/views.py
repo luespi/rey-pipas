@@ -1,3 +1,5 @@
+#  views.py de  app payments
+
 from django.shortcuts import render
 
 # Create your views here.
@@ -8,14 +10,21 @@ from django.views.generic import CreateView
 from .models import Payment
 from apps.orders.models import Order
 
+# apps/payments/views.py
+from django.views.generic import CreateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse
+from .models import Payment
+from .forms import PaymentForm
+from apps.orders.models import Order
 
 class PaymentCreateView(LoginRequiredMixin, CreateView):
     model = Payment
-    fields = ["amount", "method"]          # ajusta a tu modelo real
+    form_class = PaymentForm  # 👈 Usa el formulario con comprobante
     template_name = "payments/payment_form.html"
 
     def dispatch(self, request, *args, **kwargs):
-        self.order = Order.objects.get(pk=kwargs["order_id"])
+        self.order = Order.objects.get(pk=kwargs["order_pk"])
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):

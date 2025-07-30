@@ -3,7 +3,7 @@
 {% block title %}Pedido #{{ order.order_number }} · Detalle{% endblock %}
 
 {% block content %}
-<h3 class="text-xl font-semibold mt-6 mb-2">Chat</h3>
+<h3 class="text-xl font-semibold mt-6 mb-2 px-3 sm:px-4">Chat</h3>
 
 {% include "messages/_box.html" with order=order %}
 {% include "messages/_form.html" with order=order %}
@@ -36,6 +36,57 @@
         <p class="sm:col-span-2"><strong>Notas:</strong> {{ order.special_instructions }}</p>
       {% endif %}
     </div>
+
+
+
+    {% if order.operator %}
+      <hr>
+      <section class="space-y-6">
+        <h2 class="text-xl font-bold text-brand">Tu repartidor</h2>
+
+        <!-- Info del chofer -->
+        <div class="flex items-center gap-6">
+          {% if order.operator.profile_image %}
+            <img src="{{ order.operator.profile_image.url }}" alt="Foto del chofer"
+                 class="w-24 h-24 rounded-full shadow-md object-cover">
+          {% endif %}
+          <p class="text-lg font-semibold">{{ order.operator.get_full_name }}</p>
+        </div>
+
+        <!-- Info de la unidad -->
+        {% with unidad=order.operator.unidades.first %}
+          {% if unidad %}
+            <h3 class="text-lg font-bold mt-6">Unidad asignada</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {% if unidad.foto_frontal %}
+                <a href="{{ unidad.foto_frontal.url }}" target="_blank">
+                  <img src="{{ unidad.foto_frontal.url }}" alt="Foto frontal"
+                       class="w-full rounded-xl shadow">
+                </a>
+              {% endif %}
+              {% if unidad.foto_lateral %}
+                <a href="{{ unidad.foto_lateral.url }}" target="_blank">
+                  <img src="{{ unidad.foto_lateral.url }}" alt="Foto lateral"
+                       class="w-full rounded-xl shadow">
+                </a>
+              {% endif %}
+            </div>
+          {% endif %}
+        {% endwith %}
+      </section>
+    {% endif %}
+
+
+
+
+
+
+
+
+
+
+
+    
 
     <!-- Calificación -->
     {% if order.rating %}

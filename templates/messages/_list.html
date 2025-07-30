@@ -1,10 +1,13 @@
-{# templates/messages/_list.html #}
+{# _list.html #}
 {% for msg in messages %}
-  <p>
-    <strong>{{ msg.sender.first_name }}:</strong>
-    {{ msg.text }}
-    <span class="text-xs text-gray-500">{{ msg.created_at|time:"H:i" }}</span>
-  </p>
+  <div class="flex {% if msg.sender == user %}justify-end{% endif %}">
+    <div class="
+         {% if msg.sender == user %} bg-brand text-white mr-3 sm:mr-4 {% else %} bg-gray-100 ml-3 sm:ml-4 {% endif %}
+         rounded-lg px-3 py-2 max-w-[80%] break-words">
+      <p>{{ msg.text }}</p>
+      <span class="block text-[10px] opacity-70 mt-1">{{ msg.created_at|time:"H:i" }}</span>
+    </div>
+  </div>
 {% empty %}
-  <p class="text-gray-400">Aún no hay mensajes.</p>
+  <p class="text-gray-400 ml-3">Aún no hay mensajes.</p>
 {% endfor %}

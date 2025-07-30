@@ -3,10 +3,42 @@
 
 {% block content %}
 <style>
-  tbody tr:hover > td{background:#E5525F;color:#fff;}
-  button.btn-deliver{background:#16A34A;color:#fff;font-weight:600;transition:.2s;}
-  tbody tr:hover button.btn-deliver{background:#fff;color:#16A34A;border:2px solid #16A34A;}
+  /* Hover del renglón: fondo color empresa y texto blanco */
+  tbody tr:hover > td {
+    background: #E5525F;
+    color: #fff;
+  }
+
+  /* Estilo del enlace del número de pedido: cuando el renglón tiene hover */
+  tbody tr:hover a.text-brand {
+    color: black;
+    font-weight: bold;
+  }
+
+  /* Cuando el mouse está directamente sobre el enlace */
+  tbody tr:hover a.text-brand:hover {
+    color: white !important;
+  }
+
+  /* Botón para marcar entregado */
+  button.btn-deliver {
+    background: #16A34A;           /* verde */
+    color: #fff;
+    font-weight: 600;
+    padding: 0.5rem 1rem;           /* espacio interno */
+    border-radius: 0.375rem;        /* esquinas redondeadas */
+    transition: 0.2s;
+    display: inline-block;
+  }
+
+  /* Hover del renglón afecta al botón */
+  tbody tr:hover button.btn-deliver {
+    background: #fff;
+    color: #16A34A;
+    border: 2px solid #16A34A;
+  }
 </style>
+
 
 <section class="mx-auto max-w-7xl px-4 py-12">
   <h1 class="text-3xl sm:text-4xl font-extrabold text-brand mb-6 tracking-tight">
@@ -49,7 +81,8 @@
             {% if o.status == "assigned" %}
               <form method="post" action="{% url 'orders_operator:deliver' o.pk %}">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-brand">Marcar entregado</button>
+                <button type="submit" class="btn-deliver">Marcar entregado</button>
+
               </form>
             {% elif o.status == "delivered" %}
               <span class="text-green-600 font-semibold">Entregado</span>

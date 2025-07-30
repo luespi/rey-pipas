@@ -15,6 +15,9 @@ from django.utils import timezone
 from apps.unidades.models import Unidad
 
 
+from .constants import ZONES
+
+
 # ------------------------------------------------------------------------------
 #  Modelo principal
 # ------------------------------------------------------------------------------
@@ -35,31 +38,7 @@ class Order(models.Model):
         URGENT = "urgent", "Urgente"
 
     # ---------------- Zonas (CDMX + Edoméx) ----------------
-    ZONES = [
-        ("",  "Selecciona tu zona"),  # placeholder no válido
-        # ── Alcaldías ─────────────────────
-        ("AO", "Álvaro Obregón"), ("AZ", "Azcapotzalco"), ("BJ", "Benito Juárez"),
-        ("CO", "Coyoacán"), ("CU", "Cuauhtémoc"), ("CJ", "Cuajimalpa de Morelos"),
-        ("GA", "Gustavo A. Madero"), ("IZ", "Iztacalco"), ("IH", "Iztapalapa"),
-        ("MC", "Magdalena Contreras"), ("MI", "Miguel Hidalgo"), ("MA", "Milpa Alta"),
-        ("TL", "Tláhuac"), ("TM", "Tlalpan"), ("VC", "Venustiano Carranza"),
-        ("XO", "Xochimilco"),
-        # ── Municipios conurbados ────────
-        ("ACO", "Acolman"), ("AME", "Amecameca"), ("APA", "Apaxco"),
-        ("ATC", "Atenco"), ("ATL", "Atizapán de Zaragoza"), ("CAP", "Capulhuac"),
-        ("CHI", "Chicoloapan"), ("CHT", "Chimalhuacán"), ("CJC", "Coacalco de Berriozábal"),
-        ("CME", "Cuautitlán México"), ("CIZ", "Cuautitlán Izcalli"),
-        ("ECT", "Ecatepec de Morelos"), ("HIX", "Huehuetoca"), ("HZN", "Hueypoxtla"),
-        ("IZC", "Ixtapaluca"), ("JAL", "Jaltenco"), ("LNE", "La Paz"), ("LCO", "Lerma"),
-        ("MEL", "Melchor Ocampo"), ("NZA", "Nezahualcóyotl"), ("NIC", "Nicolás Romero"),
-        ("NUP", "Nopaltepec"), ("OTU", "Otumba"), ("PAP", "Papalotla"),
-        ("SLM", "San Martín de las Pirámides"), ("SFE", "San Felipe del Progreso"),
-        ("SFS", "San Francisco Soyaniquilpan"), ("SOX", "Santo Tomás"),
-        ("TEC", "Tecámac"), ("TEM", "Temamatla"), ("TEN", "Tenango del Aire"),
-        ("TEO", "Teoloyucan"), ("TEX", "Texcoco"), ("TLA", "Tlalnepantla de Baz"),
-        ("TLN", "Tepotzotlán"), ("TNT", "Teotihuacán"), ("TUL", "Tultitlán"),
-        ("VCS", "Valle de Chalco Solidaridad"), ("ZMP", "Zumpango"),
-    ]
+    ZONES = [("", "Selecciona tu zona")] + ZONES
 
     # -------------- Identificación --------------
     order_number = models.CharField(max_length=20, unique=True)
@@ -93,10 +72,11 @@ class Order(models.Model):
     delivery_address = models.TextField()
 
     zone = models.CharField(
-        "Zona (alcaldía o municipio)",
         max_length=4,
         choices=ZONES,
+        
     )
+
     colonia = models.CharField("Colonia (opcional)", max_length=120)
 
     delivery_date = models.DateField()
@@ -143,7 +123,14 @@ class Order(models.Model):
         now = timezone.now()
         return f"RP{now:%Y%m%d}{uuid.uuid4().hex[:6].upper()}"
 
+
     def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        previous_status = None
+
+        if not is_new:
+            previous_status = Order.objects.get(pk=self.pk).status
+
         if not self.order_number:
             num = self._gen_order_number()
             while Order.objects.filter(order_number=num).exists():
@@ -158,13 +145,44 @@ class Order(models.Model):
 
         super().save(*args, **kwargs)
 
+        # 🔥 Descontar comisión y registrarla si el pedido acaba de cambiar a "Entregado"
+        if previous_status != self.Status.DELIVERED and self.status == self.Status.DELIVERED:
+            from .models import FondoComision, ComisionDescontada
+            try:
+                fondo = FondoComision.objects.get(operador=self.operator)
+                monto = self.estimated_cost or Decimal("0.00")
+                descuento = monto * Decimal("0.10")
+                fondo.descontar(descuento)
+
+                # Registrar la comisión descontada solo si no existe aún
+                if not hasattr(self, "comision"):
+                    ComisionDescontada.objects.create(
+                        pedido=self,
+                        operador=self.operator,
+                        zona=self.zone,
+                        monto=descuento
+                    )
+            except FondoComision.DoesNotExist:
+                pass
+
+
+
+
+
+
+    
     # ----------- Propiedades -----------
     @property
     def estimated_cost(self):
-        """Ejemplo de cálculo; ajusta según tu lógica de precios."""
-        if self.quantity_liters is None:
+        if not self.quantity_liters or not self.zone:
             return None
-        return self.quantity_liters * self.price_per_liter  # `price_per_liter` definido en servicios
+        try:
+            from .models import ZonePrice
+            price = ZonePrice.objects.get(zone=self.zone).price_per_liter
+            return self.quantity_liters * price
+        except ZonePrice.DoesNotExist:
+            return None
+
 
     @property
     def is_overdue(self) -> bool:
@@ -223,3 +241,67 @@ class OrderRating(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+
+
+
+
+# ------------------------------------------------------------------------------
+#  Precios por zona
+# ------------------------------------------------------------------------------
+class ZonePrice(models.Model):
+    zone = models.CharField(
+        max_length=4,
+        choices=Order.ZONES[1:],  # Saltamos el placeholder
+        unique=True
+    )
+    price_per_liter = models.DecimalField(max_digits=6, decimal_places=2)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Precio por Zona"
+        verbose_name_plural = "Precios por Zona"
+        ordering = ['zone']
+
+    def __str__(self):
+        return f"{self.get_zone_display()}: ${self.price_per_liter}/L"
+
+
+# ------------------------------------------------------------------------------
+#  Fondos de comisión de operadores
+# ------------------------------------------------------------------------------
+class FondoComision(models.Model):
+    operador = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        limit_choices_to={"user_type": "operator"},
+    )
+    saldo_actual = models.DecimalField(max_digits=10, decimal_places=2, default=1000)
+
+    class Meta:
+        verbose_name = "Fondo de Comisión"
+        verbose_name_plural = "Fondos de Comisiones"
+
+    def descontar(self, monto):
+        self.saldo_actual -= monto
+        self.save()
+
+    def __str__(self):
+        return f"{self.operador.get_full_name()}: ${self.saldo_actual:,.2f}"
+
+
+# apps/orders/models.py
+class ComisionDescontada(models.Model):
+    pedido = models.OneToOneField(Order, on_delete=models.CASCADE, related_name="comision")
+    operador = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    zona = models.CharField(max_length=4, choices=ZONES)
+    monto = models.DecimalField(max_digits=10, decimal_places=2)
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Comisión descontada"
+        verbose_name_plural = "Comisiones descontadas"
+        ordering = ['-fecha']
+
+    def __str__(self):
+        return f"{self.pedido.order_number} – ${self.monto} – {self.operador.get_full_name()}"

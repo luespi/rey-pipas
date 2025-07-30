@@ -8,6 +8,16 @@ from .models import (
     OrderRating,
 )
 
+
+from .models import (
+    Order,
+    OrderStatusHistory,
+    OrderRating,
+    ZonePrice,
+    FondoComision,  # ← AGREGA ESTO
+)
+
+
 # ────────────────────────────────────────────────────────────────────────────
 #  INLINES
 # ────────────────────────────────────────────────────────────────────────────
@@ -47,6 +57,7 @@ class OrderAdmin(admin.ModelAdmin):
         "status_colored",
         "priority",
         "quantity_liters",
+        "estimated_cost_display",  # ← aquí lo agregas
         "delivery_date",
         "created_at",
     )
@@ -73,6 +84,11 @@ class OrderAdmin(admin.ModelAdmin):
     status_colored.short_description = "Estado"
     status_colored.admin_order_field = "status"
 
+
+
+
+
+    
     # --- Filtros laterales ---
     list_filter = (
         "zone",
@@ -126,6 +142,38 @@ class OrderAdmin(admin.ModelAdmin):
     inlines             = [OrderStatusHistoryInline, OrderRatingInline]
 
 
+
+
+
+    def estimated_cost_display(self, obj):
+        cost = obj.estimated_cost
+        try:
+            return f"${float(cost):,.2f}"
+        except (TypeError, ValueError):
+            return "—"
+
+    estimated_cost_display.short_description = "Costo estimado"
+    estimated_cost_display.admin_order_field = "price"
+
+
+    def get_readonly_fields(self, request, obj=None):
+            if request.user.groups.filter(name='owner').exists():
+                # Deja sólo status editable para el grupo owner
+                todos = [f.name for f in self.model._meta.fields]
+                return [f for f in todos if f != 'status'] + list(self.readonly_fields or [])
+            return self.readonly_fields
+
+    
+    def has_add_permission(self, request):
+        # Solo superusers pueden agregar pedidos
+        return request.user.is_superuser
+    
+    def has_delete_permission(self, request, obj=None):
+        # Solo superusers pueden borrar pedidos
+        return request.user.is_superuser
+    
+
+
 # ────────────────────────────────────────────────────────────────────────────
 #  MODELOS RELACIONADOS
 # ────────────────────────────────────────────────────────────────────────────
@@ -143,3 +191,59 @@ class OrderRatingAdmin(admin.ModelAdmin):
     list_filter   = ("rating", "created_at")
     search_fields = ("order__order_number",)
     readonly_fields = ("created_at",)
+
+
+
+from .models import ZonePrice
+
+@admin.register(ZonePrice)
+class ZonePriceAdmin(admin.ModelAdmin):
+    list_display = ['zone', 'price_per_liter', 'updated_at']
+    list_editable = ['price_per_liter']
+    search_fields = ['zone']
+
+
+
+@admin.register(FondoComision)
+class FondoComisionAdmin(admin.ModelAdmin):
+    list_display = ['operador', 'saldo_actual']
+
+
+
+from .models import ComisionDescontada
+
+from django.db.models import Sum
+from django.utils.html import format_html
+from django.contrib import admin
+from django.db.models import Sum
+from django.utils.html import format_html
+from .models import ComisionDescontada
+
+from django.contrib import admin, messages
+from django.db.models import Sum
+from .models import ComisionDescontada
+
+@admin.register(ComisionDescontada)
+class ComisionDescontadaAdmin(admin.ModelAdmin):
+    list_display = ['pedido', 'operador', 'zona', 'monto', 'fecha']
+    list_filter = ['zona', 'operador', ('fecha', admin.DateFieldListFilter)]
+    search_fields = ['pedido__order_number', 'operador__email', 'operador__first_name', 'operador__last_name']
+    ordering = ['-fecha']
+
+    def changelist_view(self, request, extra_context=None):
+        response = super().changelist_view(request, extra_context)
+
+        try:
+            qs = response.context_data['cl'].queryset
+            total = qs.aggregate(Sum('monto'))['monto__sum'] or 0
+            formatted = "${:,.2f}".format(float(total))
+
+            self.message_user(
+                request,
+                message=f"💰 Total de comisiones en esta vista: {formatted}",
+                level=messages.INFO
+            )
+        except Exception as e:
+            self.message_user(request, f"Error calculando el total: {str(e)}", level=messages.WARNING)
+
+        return response

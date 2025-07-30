@@ -48,6 +48,7 @@ for d in REPLIT_DOMAINS_ENV.split(","):
 # --- Apps -------------------------------------------------------------------
 INSTALLED_APPS = [
     # Django default
+    "jazzmin",  # debe ir antes del admin
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -95,6 +96,9 @@ TEMPLATES = [{
             "django.template.context_processors.request",
             "django.contrib.auth.context_processors.auth",
             "django.contrib.messages.context_processors.messages",
+
+            # NUEVA línea para mensajes no leídos
+            'apps.messages.context_processors.unread_messages_processor',
         ],
     },
 }]
@@ -174,3 +178,64 @@ LOGGING = {
         },
     },
 }
+
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Rey Pipas",
+    "site_header": "Rey Pipas Admin",
+    "site_brand": "Rey Pipas",
+    "welcome_sign": "Bienvenido al panel de administración",
+    "copyright": "Rey Pipas",
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    "icons": {
+        "users.User": "fas fa-user-tie",
+        "orders.Order": "fas fa-truck",
+        "payments.Payment": "fas fa-money-bill-alt",
+        "unidades.Unidad": "fas fa-tint",
+    },
+     "custom_css": "css/reypipas_admin.css",
+}
+
+
+
+JAZZMIN_UI_TWEAKS = {
+    "theme": "default",  # sin modo oscuro
+    "dark_mode_theme": None,
+    "navbar": "navbar-white navbar-light",
+    "accent": "accent-pink",
+    "sidebar": "sidebar-light-pink",
+    "brand_colour": "navbar-pink",
+}
+JAZZMIN_SETTINGS["site_logo"] = "img/logo-reypipas_f.png"
+
+
+# --- CONFIGURACIONES PARA PERMITIR PWA EN IFRAME (FASE PILOTO) ---
+
+# Permitir carga en iframe desde cualquier origen (incluye tu PWA en Replit)
+X_FRAME_OPTIONS = 'ALLOWALL'
+
+# Seguridad: Desactivamos bloqueos comunes para permitir embedding en pruebas
+SECURE_FRAME_DENY = False
+SECURE_CONTENT_TYPE_NOSNIFF = False
+
+# CORS - Permitir llamadas entre dominios (de la PWA al backend Django)
+INSTALLED_APPS += [
+    'corsheaders',
+]
+
+MIDDLEWARE.insert(0, 'corsheaders.middleware.CorsMiddleware')
+
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
+# Replit host temporalmente abierto
+ALLOWED_HOSTS = ['*']
+
+# OPCIONAL: si usas CSRF, permite al frontend desde otros orígenes
+
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://5465ca6d-2ff9-4996-b6a9-deb05bd925a8-00-tk2w8rsj0cib.kirk.replit.dev"
+]
+

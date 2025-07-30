@@ -59,10 +59,12 @@
         {% for order in orders %}
         <tr>
           <td class="px-4 py-3 font-mono">
-            <a href="{% url 'orders_operator:order-detail' order.id %}" 
-               class="font-mono text-sm text-brand hover:text-brand-dark hover:underline">
-               #{{ order.order_number }}
-            </a>
+       
+              #{{ order.order_number }}
+       
+
+
+
           </td>
 
           <td class="px-4 py-3">{{ order.client.get_full_name }}</td>

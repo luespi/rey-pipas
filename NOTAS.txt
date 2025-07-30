@@ -330,3 +330,7 @@ Sin impacto en tests ni migraciones. Pendiente de limpieza al preparar entorno d
 - order.last_payment helper + prefetch en historial.
 - order_detail.html e orders_history.html muestran monto y método.
 - Migración payments 000X creada y aplicada.
+
+
+✔️ En PaymentCreateView, usamos `order_pk` como nombre del parámetro en la URL.
+ Esto debe coincidir con `kwargs["order_pk"]` en la vista para evitar errores KeyError.

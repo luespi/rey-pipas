@@ -203,9 +203,16 @@ def profile_edit_view(request):
     })
 
 
+# apps/users/views.py
+
 @login_required
 def dashboard_redirect(request):
-    return redirect("dashboard")
+    """Redirige al panel adecuado según el tipo de usuario."""
+    user = request.user
+    if user.is_staff or user.is_superuser:
+        return redirect("/admin/")
+    return redirect("dashboard")  # O donde sea que tengas el dashboard real
+
 
 
 def password_reset_request(request):

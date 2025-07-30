@@ -1,11 +1,17 @@
+<!-- templates/payments/payment_form.html -->
 {% extends "base.html" %}
+
 {% block content %}
-<h1 class="text-xl font-bold mb-4">Registrar pago</h1>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit" class="px-4 py-2 bg-brand text-white rounded">
-    Guardar
-  </button>
-</form>
+<h1 class="text-xl font-bold mb-4 text-center">Registrar pago</h1>
+
+<div class="flex justify-center mt-8">
+  <form method="post" enctype="multipart/form-data"  <!-- 👈 Agregado -->
+        class="w-full max-w-md bg-white rounded shadow-md p-6 space-y-4">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="w-full mt-2 px-4 py-2 bg-brand text-white rounded">
+      Guardar
+    </button>
+  </form>
+</div>
 {% endblock %}
